@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  changeset_id: 
+  visible: false
+  author_id_id: 
+  body: MyText
+
+two:
+  changeset_id: 
+  visible: false
+  author_id_id: 
+  body: MyText

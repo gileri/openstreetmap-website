@@ -11,6 +11,7 @@ class Changeset < ActiveRecord::Base
   has_many :old_nodes
   has_many :old_ways
   has_many :old_relations
+  has_many :comments, -> { order(:created_at) }, :class_name => "ChangesetComment"
 
   validates_presence_of :id, :on => :update
   validates_presence_of :user_id, :created_at, :closed_at, :num_changes

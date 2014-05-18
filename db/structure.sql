@@ -126,7 +126,7 @@ CREATE TYPE user_status_enum AS ENUM (
 
 CREATE FUNCTION maptile_for_point(bigint, bigint, integer) RETURNS integer
     LANGUAGE c STRICT
-    AS '/tmp/db/functions/libpgosm', 'maptile_for_point';
+    AS '/home/ukasiu/repos/openstreetmap-website/db/functions/libpgosm', 'maptile_for_point';
 
 
 --
@@ -135,7 +135,7 @@ CREATE FUNCTION maptile_for_point(bigint, bigint, integer) RETURNS integer
 
 CREATE FUNCTION tile_for_point(integer, integer) RETURNS bigint
     LANGUAGE c STRICT
-    AS '/tmp/db/functions/libpgosm', 'tile_for_point';
+    AS '/home/ukasiu/repos/openstreetmap-website/db/functions/libpgosm', 'tile_for_point';
 
 
 --
@@ -144,7 +144,7 @@ CREATE FUNCTION tile_for_point(integer, integer) RETURNS bigint
 
 CREATE FUNCTION xid_to_int4(xid) RETURNS integer
     LANGUAGE c STRICT
-    AS '/tmp/db/functions/libpgosm', 'xid_to_int4';
+    AS '/home/ukasiu/repos/openstreetmap-website/db/functions/libpgosm', 'xid_to_int4';
 
 
 SET default_tablespace = '';
@@ -189,12 +189,10 @@ ALTER SEQUENCE acls_id_seq OWNED BY acls.id;
 
 CREATE TABLE changeset_comments (
     id integer NOT NULL,
-    changeset_id integer,
-    visible boolean,
-    author_id_id integer,
-    body text,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    changeset_id bigint NOT NULL,
+    author_id bigint NOT NULL,
+    body text NOT NULL,
+    created_at timestamp without time zone NOT NULL
 );
 
 
@@ -1787,17 +1785,17 @@ CREATE INDEX gpx_files_visible_visibility_idx ON gpx_files USING btree (visible,
 
 
 --
--- Name: index_changeset_comments_on_author_id_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_changeset_comments_on_body; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX index_changeset_comments_on_author_id_id ON changeset_comments USING btree (author_id_id);
+CREATE INDEX index_changeset_comments_on_body ON changeset_comments USING btree (body);
 
 
 --
--- Name: index_changeset_comments_on_changeset_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+-- Name: index_changeset_comments_on_created_at; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 
-CREATE INDEX index_changeset_comments_on_changeset_id ON changeset_comments USING btree (changeset_id);
+CREATE INDEX index_changeset_comments_on_created_at ON changeset_comments USING btree (created_at);
 
 
 --
@@ -2029,6 +2027,22 @@ CREATE INDEX ways_changeset_id_idx ON ways USING btree (changeset_id);
 --
 
 CREATE INDEX ways_timestamp_idx ON ways USING btree ("timestamp");
+
+
+--
+-- Name: changeset_comments_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY changeset_comments
+    ADD CONSTRAINT changeset_comments_author_id_fkey FOREIGN KEY (author_id) REFERENCES users(id);
+
+
+--
+-- Name: changeset_comments_changeset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY changeset_comments
+    ADD CONSTRAINT changeset_comments_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id);
 
 
 --

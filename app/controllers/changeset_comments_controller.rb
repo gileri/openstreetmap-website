@@ -1,0 +1,2 @@
+class ChangesetCommentsController < ApplicationController
+end

@@ -192,7 +192,8 @@ CREATE TABLE changeset_comments (
     changeset_id bigint NOT NULL,
     author_id bigint NOT NULL,
     body text NOT NULL,
-    created_at timestamp without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    visible boolean NOT NULL
 );
 
 

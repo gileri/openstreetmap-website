@@ -2,9 +2,10 @@ require 'test_helper'
 
 class ChangesetCommentTest < ActiveSupport::TestCase
   fixtures :changeset_comments
+  fixtures :changesets
 
   def test_changeset_comment_count
-    assert_equal 2, ChangesetComment.count
+    assert_equal 3, ChangesetComment.count
   end
 
   # validations
@@ -26,5 +27,16 @@ class ChangesetCommentTest < ActiveSupport::TestCase
 
     comment.changeset_id = 999111
     assert !comment.valid?
+  end
+
+  def test_does_not_accept_empty_visible
+    comment = changeset_comments(:t1)
+
+    comment.visible = nil
+    assert !comment.valid?
+  end
+
+  def test_comments_of_changeset_count
+    assert_equal 2, Changeset.find(6).comments.count
   end
 end

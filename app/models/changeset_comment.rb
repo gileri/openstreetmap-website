@@ -4,9 +4,9 @@ class ChangesetComment < ActiveRecord::Base
 
   validates_presence_of :id, :on => :update # is it necessary?
   validates_uniqueness_of :id
-  validates_presence_of :changeset_id
+  validates_presence_of :changeset
   validates_associated :changeset
-  validates_presence_of :author_id
+  validates_presence_of :author
   validates_associated :author
 
   # Return the comment text

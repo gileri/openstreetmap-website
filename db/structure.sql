@@ -263,6 +263,16 @@ ALTER SEQUENCE changesets_id_seq OWNED BY changesets.id;
 
 
 --
+-- Name: changesets_subscribers; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE changesets_subscribers (
+    subscriber_id bigint NOT NULL,
+    changeset_id bigint NOT NULL
+);
+
+
+--
 -- Name: client_applications; Type: TABLE; Schema: public; Owner: -; Tablespace: 
 --
 
@@ -2054,6 +2064,22 @@ ALTER TABLE ONLY changeset_tags
 
 
 --
+-- Name: changesets_subscribers_changeset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY changesets_subscribers
+    ADD CONSTRAINT changesets_subscribers_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id);
+
+
+--
+-- Name: changesets_subscribers_subscriber_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY changesets_subscribers
+    ADD CONSTRAINT changesets_subscribers_subscriber_id_fkey FOREIGN KEY (subscriber_id) REFERENCES users(id);
+
+
+--
 -- Name: changesets_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2504,6 +2530,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140117185510');
 INSERT INTO schema_migrations (version) VALUES ('20140210003018');
 
 INSERT INTO schema_migrations (version) VALUES ('20140507110937');
+
+INSERT INTO schema_migrations (version) VALUES ('20140519141742');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

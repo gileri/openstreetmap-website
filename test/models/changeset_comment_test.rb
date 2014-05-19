@@ -15,7 +15,7 @@ class ChangesetCommentTest < ActiveSupport::TestCase
     assert !comment.valid?
 
     comment.author_id = 999111
-    assert !comment.valid? # it's valid and it shoudln't?
+    assert !comment.valid?
   end
 
   def test_does_not_accept_invalid_changeset
@@ -25,6 +25,6 @@ class ChangesetCommentTest < ActiveSupport::TestCase
     assert !comment.valid?
 
     comment.changeset_id = 999111
-    assert !comment.valid? # it's valid and it shoudln't?
+    assert !comment.valid?
   end
 end

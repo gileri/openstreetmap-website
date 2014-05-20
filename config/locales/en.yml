@@ -1228,6 +1228,14 @@ en:
         your_note: "%{commenter} has reactivated one of your map notes near %{place}."
         commented_note: "%{commenter} has reactivated a map note you have commented on. The note is near %{place}."
       details: "More details about the note can be found at %{url}."
+    changeset_comment_notification:
+      greeting: "Hi,"
+      commented:
+        subject_own: "[OpenStreetMap] %{commenter} has commented on one of your changesets"
+        subject_other: "[OpenStreetMap] %{commenter} has commented on a changeset you are interested in"
+        your_changeset: "%{commenter} has left a comment on one of your changesets."
+        commented_changeset: "%{commenter} has left a comment on a map changeset you have commented on."
+      details: "More details about the changeset can be found at %{url}."
   message:
     inbox:
       title: "Inbox"

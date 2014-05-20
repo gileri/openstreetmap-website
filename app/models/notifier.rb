@@ -146,6 +146,23 @@ class Notifier < ActionMailer::Base
     end
   end
 
+  def changeset_comment_notification(comment, recipient)
+    with_recipient_locale recipient do
+      @changeset_url = changeset_url(comment.changeset, :host => SERVER_URL)
+      @comment = comment.body
+      @owner = recipient == comment.changeset.user
+      @commenter = comment.author.display_name
+
+      if @owner
+        subject = I18n.t("notifier.changeset_comment_notification.commented.subject_own", :commenter => @commenter)
+      else
+        subject = I18n.t("notifier.changeset_comment_notification.commented.subject_other", :commenter => @commenter)
+      end
+
+      mail :to => recipient.email, :subject => subject
+    end
+  end
+
 private
 
   def with_recipient_locale(recipient)

@@ -1,0 +1,13 @@
+<%= t 'notifier.changeset_comment_notification.greeting' %>
+
+<% if @owner %>
+<%= t "notifier.changeset_comment_notification.commented.your_changeset", :commenter => @commenter %>
+<% else %>
+<%= t "notifier.changeset_comment_notification.commented.commented_changeset", :commenter => @commenter %>
+<% end %>
+
+==
+<%= @comment.to_text %>
+==
+
+<%= t 'notifier.changeset_comment_notification.details', :url => @changeset_url %>

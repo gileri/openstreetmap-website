@@ -7,7 +7,7 @@ class ChangesetController < ApplicationController
   skip_before_filter :verify_authenticity_token, :except => [:list]
   before_filter :authorize_web, :only => [:list, :feed]
   before_filter :set_locale, :only => [:list, :feed]
-  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close]
+  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close, :comment]
   before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close]
   before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close]
   before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include]
@@ -303,6 +303,49 @@ class ChangesetController < ApplicationController
   # list edits as an atom feed
   def feed
     list
+  end
+
+  ##
+  # Add a comment to a changeset
+  def comment
+    # TODO before actions
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+    raise OSM::APIBadUserInput.new("No text was given") if params[:text].blank?
+
+    # Extract the arguments
+    id = params[:id].to_i
+    body = params[:text]
+
+    # Find the changeset and check it is valid
+    @changeset = Changeset.find(id)
+    raise OSM::APINotFoundError unless @changeset
+    # TODO something like checking if changeset if valid and closed here
+
+    # Add a comment to the changeset
+    attributes = {
+      :changeset => @changeset,
+      :body => body,
+      :author => @user
+    }
+
+    @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
+    comment = @changeset.comments.create(attributes)
+
+    @changeset.subscribers.each do |user|
+      if @user != user
+        Notifier.changeset_comment_notification(comment, user).deliver
+      end
+    end
+
+    render :nothing => true, :status => 200
+
+    # TODO maybe introduce separate changeset_comments controller or comments action
+    # # Return a copy of the updated changeset
+    # respond_to do |format|
+    #   format.xml { render :action => :show }
+    #   format.json { render :action => :show }
+    # end
   end
 
 private

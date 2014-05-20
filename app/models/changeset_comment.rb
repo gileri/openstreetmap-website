@@ -8,7 +8,8 @@ class ChangesetComment < ActiveRecord::Base
   validates_associated :changeset
   validates_presence_of :author
   validates_associated :author
-
+  validates_presence_of :visible
+  
   # Return the comment text
   def body
     RichText.new("text", read_attribute(:body))

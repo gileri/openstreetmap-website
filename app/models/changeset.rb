@@ -11,7 +11,8 @@ class Changeset < ActiveRecord::Base
   has_many :old_nodes
   has_many :old_ways
   has_many :old_relations
-  has_many :comments, -> { order(:created_at) }, :class_name => 'ChangesetComment'
+  
+  has_many :comments, -> { where(:visible => true).order(:created_at) }, :class_name => "ChangesetComment"
   has_and_belongs_to_many :subcribers, :class_name => 'User', :join_table => 'changesets_subscribers', :association_foreign_key => 'subscriber_id'
 
   validates_presence_of :id, :on => :update

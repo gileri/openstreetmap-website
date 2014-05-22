@@ -8,10 +8,10 @@ class ChangesetController < ApplicationController
   before_filter :authorize_web, :only => [:list, :feed]
   before_filter :set_locale, :only => [:list, :feed]
   before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close, :comment]
-  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include]
-  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed]
+  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :comment]
+  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close, :comment]
+  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :comment]
+  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :comment]
   before_filter(:only => [:list, :feed]) { |c| c.check_database_readable(true) }
   after_filter :compress_output
   around_filter :api_call_handle_error, :except => [:list, :feed]
@@ -36,8 +36,12 @@ class ChangesetController < ApplicationController
   # Return XML giving the basic info about the changeset. Does not
   # return anything about the nodes, ways and relations in the changeset.
   def read
-    changeset = Changeset.find(params[:id])
-    render :text => changeset.to_xml.to_s, :content_type => "text/xml"
+    @changeset = Changeset.find(params[:id])
+    
+    respond_to do |format|
+      format.xml { render :action => :show }
+      format.json { render :action => :show }
+    end
   end
 
   ##
@@ -338,14 +342,11 @@ class ChangesetController < ApplicationController
       end
     end
 
-    render :nothing => true, :status => 200
-
-    # TODO maybe introduce separate changeset_comments controller or comments action
-    # # Return a copy of the updated changeset
-    # respond_to do |format|
-    #   format.xml { render :action => :show }
-    #   format.json { render :action => :show }
-    # end
+    # Return a copy of the updated changeset
+    respond_to do |format|
+      format.xml { render :action => :show }
+      format.json { render :action => :show }
+    end
   end
 
 private

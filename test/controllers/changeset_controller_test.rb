@@ -149,7 +149,7 @@ class ChangesetControllerTest < ActionController::TestCase
   # document structure.
   def test_read
     changeset_id = changesets(:normal_user_first_change).id
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
     assert_response :success, "cannot get first changeset"
 
     assert_select "osm[version=#{API_VERSION}][generator=\"OpenStreetMap server\"]", 1
@@ -1382,7 +1382,8 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
+
     assert_response :success, "Couldn't read back changeset."
     assert_select "osm>changeset[min_lon=1.0]", 1
     assert_select "osm>changeset[max_lon=1.0]", 1
@@ -1397,7 +1398,7 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
     assert_response :success, "Couldn't read back changeset for the second time."
     assert_select "osm>changeset[min_lon=1.0]", 1
     assert_select "osm>changeset[max_lon=2.0]", 1
@@ -1413,7 +1414,7 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
     assert_response :success, "Couldn't read back changeset for the third time."
     # note that the 3.1 here is because of the bbox overexpansion
     assert_select "osm>changeset[min_lon=1.0]", 1

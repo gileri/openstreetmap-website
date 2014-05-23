@@ -1,4 +1,9 @@
-xml.changeset(:id => changeset.id, :uid => changeset.user.id, :user => changeset.user.display_name, :created_at => changeset.created_at.xmlschema, :closed_at => changeset.closed_at, :open => changeset.is_open?, :min_lat => changeset.min_lat, :min_lon => changeset.min_lon, :max_lat => changeset.max_lat, :max_lon => changeset.max_lon) do
+changeset_attributes = { :id => changeset.id, :user => changeset.user.display_name, :created_at => changeset.created_at.xmlschema, :closed_at => changeset.closed_at, :open => changeset.is_open? }
+changeset_attributes[:uid] = changeset.user.id if changeset.user.data_public?
+changeset_attributes[:user] = changeset.user.display_name if changeset.user.data_public?
+changeset.bbox.to_unscaled.add_bounds_to(changeset_attributes, '_') if changeset.bbox.complete?
+
+xml.changeset(changeset_attributes) do |asterx|
   changeset.tags.each do |k,v|
     xml.tag :k => k, :v => v
   end
@@ -18,5 +23,3 @@ xml.changeset(:id => changeset.id, :uid => changeset.user.id, :user => changeset
     end
   end
 end
-
-# TODO elf.user.data_public?, bbox bounds

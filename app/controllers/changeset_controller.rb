@@ -312,7 +312,6 @@ class ChangesetController < ApplicationController
   ##
   # Add a comment to a changeset
   def comment
-    # TODO before actions
     # Check the arguments are sane
     raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
     raise OSM::APIBadUserInput.new("No text was given") if params[:text].blank?
@@ -324,7 +323,7 @@ class ChangesetController < ApplicationController
     # Find the changeset and check it is valid
     @changeset = Changeset.find(id)
     raise OSM::APINotFoundError unless @changeset
-    # TODO something like checking if changeset if valid and closed here
+    raise OSM::APIChangesetNotYetClosedError if @changeset.is_open?
 
     # Add a comment to the changeset
     attributes = {
@@ -333,7 +332,6 @@ class ChangesetController < ApplicationController
       :author => @user
     }
 
-    @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
     comment = @changeset.comments.create(attributes)
 
     @changeset.subscribers.each do |user|
@@ -342,10 +340,12 @@ class ChangesetController < ApplicationController
       end
     end
 
+    @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
+
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
-      format.json { render :action => :show }
+      # format.json { render :action => :show }
     end
   end
 

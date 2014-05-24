@@ -36,6 +36,14 @@ class ChangesetControllerTest < ActionController::TestCase
       { :controller => "changeset", :action => "close", :id => "1" }
     )
     assert_routing(
+        { :path => "/api/0.6/changeset/1/subscribe", :method => :post },
+        { :controller => "changeset", :action => "subscribe", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/1/unsubscribe", :method => :post },
+        { :controller => "changeset", :action => "unsubscribe", :id => "1" }
+    )
+    assert_routing(
       { :path => "/api/0.6/changesets", :method => :get },
       { :controller => "changeset", :action => "query" }
     )
@@ -1841,6 +1849,32 @@ EOF
     assert_select "osmChange node[id=17][version=1]", 0
   end
 
+  ##
+  # create comment success
+  def test_create_comment_success
+    basic_authorization(users(:public_user).email, "test")
+
+    assert_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_closed_change).id, :text => 'This is a comment', :format => :xml }
+    end
+    assert_response :success
+  end
+
+  ##
+  # create comment fail
+  def test_create_comment_fail
+    # TODO add more samples
+    post :comment, { :id => changesets(:normal_user_closed_change).id, :text => 'This is a comment' }
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, "test")
+
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_first_change).id, :text => 'This is a comment' }
+    end
+    assert_response :conflict
+  end
+
   #------------------------------------------------------------
   # utility functions
   #------------------------------------------------------------
@@ -1887,5 +1921,4 @@ EOF
     xml.find("//osm/way").first[name] = value.to_s
     return xml
   end
-
 end

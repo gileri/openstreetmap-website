@@ -381,7 +381,6 @@ class ChangesetController < ApplicationController
     # Find the changeset and check it is valid
     @changeset = Changeset.find(id)
     raise OSM::APINotFoundError unless @changeset
-    raise OSM::APIChangesetNotYetClosedError if @changeset.is_open?
 
     @changeset.subscribers.delete(@user) if @changeset.subscribers.exists?(@user)
 

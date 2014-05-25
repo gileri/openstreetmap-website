@@ -25,7 +25,7 @@ class ChangesetControllerTest < ActionController::TestCase
     )
     assert_routing(
       { :path => "/api/0.6/changeset/1", :method => :get },
-      { :controller => "changeset", :action => "read", :id => "1" }
+      { :controller => "changeset", :action => "read", :id => "1", :format => :xml }
     )
     assert_routing(
       { :path => "/api/0.6/changeset/1", :method => :put },
@@ -34,6 +34,14 @@ class ChangesetControllerTest < ActionController::TestCase
     assert_routing(
       { :path => "/api/0.6/changeset/1/close", :method => :put },
       { :controller => "changeset", :action => "close", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/1/subscribe", :method => :post },
+        { :controller => "changeset", :action => "subscribe", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/1/unsubscribe", :method => :post },
+        { :controller => "changeset", :action => "unsubscribe", :id => "1" }
     )
     assert_routing(
       { :path => "/api/0.6/changesets", :method => :get },
@@ -149,7 +157,7 @@ class ChangesetControllerTest < ActionController::TestCase
   # document structure.
   def test_read
     changeset_id = changesets(:normal_user_first_change).id
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
     assert_response :success, "cannot get first changeset"
 
     assert_select "osm[version=#{API_VERSION}][generator=\"OpenStreetMap server\"]", 1
@@ -1382,7 +1390,8 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
+
     assert_response :success, "Couldn't read back changeset."
     assert_select "osm>changeset[min_lon=1.0]", 1
     assert_select "osm>changeset[max_lon=1.0]", 1
@@ -1397,7 +1406,7 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
     assert_response :success, "Couldn't read back changeset for the second time."
     assert_select "osm>changeset[min_lon=1.0]", 1
     assert_select "osm>changeset[max_lon=2.0]", 1
@@ -1413,7 +1422,7 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id
+    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
     assert_response :success, "Couldn't read back changeset for the third time."
     # note that the 3.1 here is because of the bbox overexpansion
     assert_select "osm>changeset[min_lon=1.0]", 1
@@ -1840,6 +1849,123 @@ EOF
     assert_select "osmChange node[id=17][version=1]", 0
   end
 
+  ##
+  # create comment success
+  def test_create_comment_success
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_closed_change).id, :text => 'This is a comment', :format => :xml }
+    end
+    assert_response :success
+  end
+
+  ##
+  # create comment fail
+  def test_create_comment_fail
+    # unauthorized
+    post :comment, { :id => changesets(:normal_user_closed_change).id, :text => 'This is a comment' }
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    # bad changeset id
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => 999111, :text => 'This is a comment' }
+    end
+    assert_response :not_found
+
+    # not closed changeset
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_first_change).id, :text => 'This is a comment' }
+    end
+    assert_response :conflict
+
+    # no text
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_closed_change).id }
+    end
+    assert_response :bad_request
+
+    # empty text
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_closed_change).id, :text => '' }
+    end
+    assert_response :bad_request    
+  end
+
+  ##
+  # test subscribe success
+  def test_subscribe_success
+    basic_authorization(users(:public_user).email, 'test')
+    changeset = changesets(:normal_user_closed_change)
+
+    assert_difference('changeset.subscribers.count') do
+      post :subscribe, { :id => changeset.id }
+    end
+    assert_response :success
+  end
+
+  ##
+  # test subscribe fail
+  def test_subscribe_fail
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.subscribers.count') do
+      post :subscribe, { :id => changeset.id }
+    end
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_no_difference('changeset.subscribers.count') do
+      post :subscribe, { :id => 999111 }
+    end
+    assert_response :not_found
+
+    changeset = changesets(:normal_user_first_change)
+    assert_no_difference('changeset.subscribers.count') do
+      post :subscribe, { :id => changeset.id }
+    end
+    assert_response :conflict
+  end
+
+  ##
+  # test unsubscribe success
+  def test_unsubscribe_success
+    basic_authorization(users(:public_user).email, 'test')
+    changeset = changesets(:normal_user_closed_change)
+    post :subscribe, { :id => changeset.id }
+    # unsubscribe
+    assert_difference('changeset.subscribers.count', -1) do
+      post :unsubscribe, { :id => changeset.id }
+    end
+    assert_response :success
+  end
+
+  ##
+  # test unsubscribe fail
+  def test_unsubscribe_fail
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.subscribers.count') do
+      post :subscribe, { :id => changeset.id }
+    end
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_no_difference('changeset.subscribers.count', -1) do
+      post :subscribe, { :id => 999111 }
+    end
+    assert_response :not_found
+
+    changeset = changesets(:normal_user_first_change)
+    assert_no_difference('changeset.subscribers.count', -1) do
+      post :subscribe, { :id => changeset.id }
+    end
+    assert_response :conflict
+  end
+
+
   #------------------------------------------------------------
   # utility functions
   #------------------------------------------------------------
@@ -1886,5 +2012,4 @@ EOF
     xml.find("//osm/way").first[name] = value.to_s
     return xml
   end
-
 end

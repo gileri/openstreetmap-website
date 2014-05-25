@@ -95,6 +95,23 @@ module OSM
     end
   end
 
+  # Raised when the changeset provided is not yet closed
+  class APIChangesetNotYetClosedError < APIError
+    def initialize(changeset)
+      @changeset = changeset
+    end
+
+    attr_reader :changeset
+
+    def status
+      :conflict
+    end
+
+    def to_s
+      "The changeset #{@changeset.id} is not yet closed."
+    end
+  end
+
   # Raised when a change is expecting a changeset, but the changeset doesn't exist
   class APIChangesetMissingError < APIError
     def status

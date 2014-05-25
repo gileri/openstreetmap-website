@@ -7,11 +7,11 @@ class ChangesetController < ApplicationController
   skip_before_filter :verify_authenticity_token, :except => [:list]
   before_filter :authorize_web, :only => [:list, :feed]
   before_filter :set_locale, :only => [:list, :feed]
-  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include]
-  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed]
+  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
+  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe]
+  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close, :comment]
+  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :comment, :subscribe]
+  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :comment, :subscribe]
   before_filter(:only => [:list, :feed]) { |c| c.check_database_readable(true) }
   after_filter :compress_output
   around_filter :api_call_handle_error, :except => [:list, :feed]
@@ -36,8 +36,12 @@ class ChangesetController < ApplicationController
   # Return XML giving the basic info about the changeset. Does not
   # return anything about the nodes, ways and relations in the changeset.
   def read
-    changeset = Changeset.find(params[:id])
-    render :text => changeset.to_xml.to_s, :content_type => "text/xml"
+    @changeset = Changeset.find(params[:id])
+
+    respond_to do |format|
+      format.xml { render :action => :show }
+      # format.json { render :action => :show }
+    end
   end
 
   ##
@@ -303,6 +307,84 @@ class ChangesetController < ApplicationController
   # list edits as an atom feed
   def feed
     list
+  end
+
+  ##
+  # Add a comment to a changeset
+  def comment
+    # TODO tests
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+    raise OSM::APIBadUserInput.new("No text was given") if params[:text].blank?
+
+    # Extract the arguments
+    id = params[:id].to_i
+    body = params[:text]
+
+    # Find the changeset and check it is valid
+    @changeset = Changeset.find(id)
+    raise OSM::APINotFoundError unless @changeset
+    raise OSM::APIChangesetNotYetClosedError.new(@changeset) if @changeset.is_open?
+
+    # Add a comment to the changeset
+    attributes = {
+      :changeset => @changeset,
+      :body => body,
+      :author => @user
+    }
+
+    comment = @changeset.comments.create(attributes)
+
+    @changeset.subscribers.each do |user|
+      if @user != user
+        Notifier.changeset_comment_notification(comment, user).deliver
+      end
+    end
+
+    @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
+
+    # Return a copy of the updated changeset
+    respond_to do |format|
+      format.xml { render :action => :show }
+      # format.json { render :action => :show }
+    end
+  end
+
+  ## 
+  # Adds a subscriber to the changeset
+  def subscribe
+    # TODO tests
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+
+    # Extract the arguments
+    id = params[:id].to_i
+
+    # Find the changeset and check it is valid
+    @changeset = Changeset.find(id)
+    raise OSM::APINotFoundError unless @changeset
+    raise OSM::APIChangesetNotYetClosedError.new(@changeset) if @changeset.is_open?
+
+    @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
+
+    render :nothing => true, :status => 200
+  end
+
+  def unsubscribe 
+    # TODO tests
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+
+    # Extract the arguments
+    id = params[:id].to_i
+
+    # Find the changeset and check it is valid
+    @changeset = Changeset.find(id)
+    raise OSM::APINotFoundError unless @changeset
+
+    @changeset.subscribers.delete(@user) if @changeset.subscribers.exists?(@user)
+
+    render :nothing => true, :status => 200
   end
 
 private

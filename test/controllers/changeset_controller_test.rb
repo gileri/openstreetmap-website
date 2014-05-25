@@ -1852,7 +1852,7 @@ EOF
   ##
   # create comment success
   def test_create_comment_success
-    basic_authorization(users(:public_user).email, "test")
+    basic_authorization(users(:public_user).email, 'test')
 
     assert_difference('ChangesetComment.count') do
       post :comment, { :id => changesets(:normal_user_closed_change).id, :text => 'This is a comment', :format => :xml }
@@ -1863,17 +1863,61 @@ EOF
   ##
   # create comment fail
   def test_create_comment_fail
-    # TODO add more samples
+    # unauthorized
     post :comment, { :id => changesets(:normal_user_closed_change).id, :text => 'This is a comment' }
     assert_response :unauthorized
 
-    basic_authorization(users(:public_user).email, "test")
+    basic_authorization(users(:public_user).email, 'test')
 
+    # bad changeset id
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => 999111, :text => 'This is a comment' }
+    end
+    assert_response :not_found
+
+    # not closed changeset
     assert_no_difference('ChangesetComment.count') do
       post :comment, { :id => changesets(:normal_user_first_change).id, :text => 'This is a comment' }
     end
     assert_response :conflict
+
+    # no text
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_closed_change).id }
+    end
+    assert_response :bad_request
+
+    # empty text
+    assert_no_difference('ChangesetComment.count') do
+      post :comment, { :id => changesets(:normal_user_closed_change).id, :text => '' }
+    end
+    assert_response :bad_request    
   end
+
+  ##
+  # test subscribe success
+  def test_subscribe_success
+
+  end
+
+  ##
+  # test subscribe fail
+  def test_subscribe_fail
+
+  end
+
+  ##
+  # test unsubscribe success
+  def test_unsubscribe_success
+
+  end
+
+  ##
+  # test unsubscribe fail
+  def test_unsubscribe_fail
+
+  end
+
 
   #------------------------------------------------------------
   # utility functions

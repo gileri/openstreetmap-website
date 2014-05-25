@@ -1927,19 +1927,42 @@ EOF
       post :subscribe, { :id => changeset.id }
     end
     assert_response :conflict
-
   end
 
   ##
   # test unsubscribe success
   def test_unsubscribe_success
-
+    basic_authorization(users(:public_user).email, 'test')
+    changeset = changesets(:normal_user_closed_change)
+    post :subscribe, { :id => changeset.id }
+    # unsubscribe
+    assert_difference('changeset.subscribers.count', -1) do
+      post :unsubscribe, { :id => changeset.id }
+    end
+    assert_response :success
   end
 
   ##
   # test unsubscribe fail
   def test_unsubscribe_fail
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.subscribers.count') do
+      post :subscribe, { :id => changeset.id }
+    end
+    assert_response :unauthorized
 
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_no_difference('changeset.subscribers.count', -1) do
+      post :subscribe, { :id => 999111 }
+    end
+    assert_response :not_found
+
+    changeset = changesets(:normal_user_first_change)
+    assert_no_difference('changeset.subscribers.count', -1) do
+      post :subscribe, { :id => changeset.id }
+    end
+    assert_response :conflict
   end
 
 

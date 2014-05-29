@@ -27,6 +27,15 @@
     </div>
   <% end %>
 
+  <% unless @changeset.is_open? %>
+    <form action="#">
+      <textarea class="comment" name="text" cols="40" rows="5"></textarea>
+      <div class="buttons clearfix">
+        <input type="submit" name="comment" value="<%= t('javascripts.changesets.show.comment') %>" data-changeset-id="<%= @changeset.id %>" data-method="POST" data-url="<%= changeset_comment_url(@changeset, 'json') %>" disabled="1"/>
+      </div>
+    </form>
+  <% end %>
+
   <% unless @ways.empty? %>
     <h4>
       <%= type_and_paginated_count('way', @way_pages) %>

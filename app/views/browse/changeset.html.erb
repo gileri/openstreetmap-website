@@ -11,6 +11,22 @@
 
   <%= render :partial => "tag_details", :object => @changeset.tags.except('comment') %>
 
+  <% if @changeset.comments.length > 1 %>
+    <h4><%= t('browse.changeset.comment', :count => @changeset.comments.length) %></h4>
+    <div class='changeset-comments'>
+      <ul>
+        <% @changeset.comments[1..-1].each do |comment| %>
+          <li id="c<%= comment.id %>">
+            <small class='deemphasize'><%= t("browse.changeset.commented_by",
+             :when => friendly_date(comment.created_at), :exact_time => l(comment.created_at), 
+             :user => link_to(h(comment.author.display_name), {:controller => "user", :action => "view", :display_name => comment.author.display_name})).html_safe %></small>
+            <%= comment.body.to_html %>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <% unless @ways.empty? %>
     <h4>
       <%= type_and_paginated_count('way', @way_pages) %>

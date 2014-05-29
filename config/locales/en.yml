@@ -121,6 +121,8 @@ en:
       way_paginated: "Ways (%{x}-%{y} of %{count})"
       relation: "Relations (%{count})"
       relation_paginated: "Relations (%{x}-%{y} of %{count})"
+      comment: "Comments (%{count})"
+      commented_by: "Comment from %{user} <abbr title='%{exact_time}'>%{when} ago</abbr>"
       changesetxml: "Changeset XML"
       osmchangexml: "osmChange XML"
       feed:

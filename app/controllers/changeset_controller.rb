@@ -40,7 +40,7 @@ class ChangesetController < ApplicationController
 
     respond_to do |format|
       format.xml { render :action => :show }
-      # format.json { render :action => :show }
+      format.json { render :json => @changeset } # TODO
     end
   end
 
@@ -346,7 +346,7 @@ class ChangesetController < ApplicationController
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
-      # format.json { render :action => :show }
+      format.json { render :json => @changeset } # TODO
     end
   end
 

@@ -14,7 +14,8 @@ OpenStreetMap::Application.routes.draw do
   match 'api/0.6/changeset/:id' => 'changeset#update', :via => :put, :id => /\d+/
   match 'api/0.6/changeset/:id/close' => 'changeset#close', :via => :put, :id => /\d+/
   match 'api/0.6/changesets' => 'changeset#query', :via => :get
-  match 'api/0.6/changeset/:id/comment' => 'changeset#comment', :via => :post, :as => :changeset_comment, :id => /\d+/
+  post 'api/0.6/changeset/:id/comment' => 'changeset#comment', :as => :changeset_comment, :id => /\d+/
+  # match 'api/0.6/changeset/:id/comment.json' => 'changeset#comment', :via => :post, :as => :changeset_comment, :id => /\d+/ #TODO routes for changeset should be refactored?
 
   match 'api/0.6/node/create' => 'node#create', :via => :put
   match 'api/0.6/node/:id/ways' => 'way#ways_for_node', :via => :get, :id => /\d+/

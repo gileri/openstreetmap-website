@@ -11,7 +11,7 @@
 
   <%= render :partial => "tag_details", :object => @changeset.tags.except('comment') %>
 
-  <% if @changeset.comments.length > 1 %>
+  <% if @changeset.comments.length > 0 %>
     <h4><%= t('browse.changeset.comment', :count => @changeset.comments.length) %></h4>
     <div class='changeset-comments'>
       <ul>

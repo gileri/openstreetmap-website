@@ -4,6 +4,7 @@ OSM.Changeset = function (map) {
 
   page.pushstate = page.popstate = function(path, id) {
     OSM.loadSidebarContent(path, function() {
+      initialize();
       addChangeset(id);
     });
   };

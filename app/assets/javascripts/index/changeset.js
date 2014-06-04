@@ -39,11 +39,30 @@ OSM.Changeset = function (map) {
     });
   }
 
+  function changeSubscription(form, method, url) {
+    $(form).find("input[type=submit]").prop("disabled", true);
+
+    $.ajax({
+      url: url,
+      type: method,
+      oauth: true,
+      success: function () {
+        OSM.loadSidebarContent(window.location.pathname, page.load);
+      }
+    });
+  }
+
   function initialize() {
-    content.find("input[type=submit]").on("click", function (e) {
+    content.find("input[name=comment]").on("click", function (e) {
       e.preventDefault();
       var data = $(e.target).data();
       updateChangeset(e.target.form, data.method, data.url);
+    });
+
+    content.find("input[name=subscribe],input[name=unsubscribe]").on("click", function (e) {
+      e.preventDefault();
+      var data = $(e.target).data();
+      changeSubscription(e.target.form, data.method, data.url);
     });
 
     content.find("textarea").on("input", function (e) {

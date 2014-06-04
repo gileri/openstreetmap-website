@@ -8,10 +8,10 @@ class ChangesetController < ApplicationController
   before_filter :authorize_web, :only => [:list, :feed]
   before_filter :set_locale, :only => [:list, :feed]
   before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
-  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe]
-  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close, :comment]
-  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :comment, :subscribe]
-  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :comment, :subscribe]
+  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
+  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
+  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :comment, :subscribe, :unsubscribe]
+  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :comment, :subscribe, :unsubscribe]
   before_filter(:only => [:list, :feed]) { |c| c.check_database_readable(true) }
   after_filter :compress_output
   around_filter :api_call_handle_error, :except => [:list, :feed]
@@ -367,7 +367,7 @@ class ChangesetController < ApplicationController
 
     @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
 
-    render :nothing => true, :status => 200
+    render :json => nil #TODO
   end
 
   def unsubscribe 
@@ -384,7 +384,7 @@ class ChangesetController < ApplicationController
 
     @changeset.subscribers.delete(@user) if @changeset.subscribers.exists?(@user)
 
-    render :nothing => true, :status => 200
+    render :json => nil #TODO
   end
 
 private

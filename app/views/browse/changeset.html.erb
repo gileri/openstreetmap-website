@@ -14,10 +14,10 @@
   <h4><%= t('browse.changeset.comment', :count => @changeset.comments.length) %></h4>
   <form action="#" class="hide_unless_logged_in">
     <div class="buttons clearfix">
-      <% if @changeset.subscribers.exists?(@user) # I don't know if it's nice to do this kind of check here %>
-        <input type="submit" name="unsubscribe" value="Unsubscribe" data-method="POST" data-url="<%= changeset_unsubscribe_url(@changeset, 'json') %>" />
+      <% if @changeset.subscribers.exists?(@user) # TODO I don't know if it's nice to do this kind of check here %>
+        <input type="submit" name="unsubscribe" value="<%= t('javascripts.changesets.show.unsubscribe') %>" data-method="POST" data-url="<%= changeset_unsubscribe_url(@changeset, 'json') %>" />
       <% else %>
-        <input type="submit" name="subscribe" value="Subscribe" data-method="POST" data-url="<%= changeset_subscribe_url(@changeset, 'json') %>" />
+        <input type="submit" name="subscribe" value="<%= t('javascripts.changesets.show.subscribe') %>" data-method="POST" data-url="<%= changeset_subscribe_url(@changeset, 'json') %>" />
       <% end %>
     </div>
   </form>

@@ -353,7 +353,6 @@ class ChangesetController < ApplicationController
   ## 
   # Adds a subscriber to the changeset
   def subscribe
-    # TODO tests
     # Check the arguments are sane
     raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
 
@@ -367,11 +366,14 @@ class ChangesetController < ApplicationController
 
     @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
 
-    render :json => nil #TODO
+    # Return a copy of the updated changeset
+    respond_to do |format|
+      format.xml { render :action => :show }
+      format.json { render :json => @changeset } # TODO
+    end
   end
 
   def unsubscribe 
-    # TODO tests
     # Check the arguments are sane
     raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
 
@@ -384,7 +386,11 @@ class ChangesetController < ApplicationController
 
     @changeset.subscribers.delete(@user) if @changeset.subscribers.exists?(@user)
 
-    render :json => nil #TODO
+    # Return a copy of the updated changeset
+    respond_to do |format|
+      format.xml { render :action => :show }
+      format.json { render :json => @changeset } # TODO
+    end
   end
 
 private

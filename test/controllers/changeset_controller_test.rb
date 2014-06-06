@@ -108,6 +108,9 @@ class ChangesetControllerTest < ActionController::TestCase
       # must be number of seconds...
       assert_equal 3600, duration.round, "initial idle timeout should be an hour (#{cs.created_at} -> #{cs.closed_at})"
     end
+
+    # checks if uploader was subscribed
+    assert_equal 1, cs.subscribers.length
   end
 
   def test_create_invalid

@@ -29,6 +29,10 @@ class ChangesetController < ApplicationController
     # Assume that Changeset.from_xml has thrown an exception if there is an error parsing the xml
     cs.user_id = @user.id
     cs.save_with_tags!
+
+    # Subscribe user to changeset comments
+    cs.subscribers << @user
+
     render :text => cs.id.to_s, :content_type => "text/plain"
   end
 

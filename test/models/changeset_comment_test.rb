@@ -1,8 +1,7 @@
 require 'test_helper'
 
 class ChangesetCommentTest < ActiveSupport::TestCase
-  fixtures :changeset_comments
-  fixtures :changesets
+  fixtures :changesets, :changeset_comments
 
   def test_changeset_comment_count
     assert_equal 3, ChangesetComment.count
@@ -37,6 +36,6 @@ class ChangesetCommentTest < ActiveSupport::TestCase
   end
 
   def test_comments_of_changeset_count
-    assert_equal 2, Changeset.find(6).comments.count
+    assert_equal 2, Changeset.find(changesets(:normal_user_closed_change)).comments.count
   end
 end

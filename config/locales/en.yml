@@ -129,6 +129,7 @@ en:
         title: "Changeset %{id}"
         title_comment: "Changeset %{id} - %{comment}"
       join_discussion: "Log in to join the discussion"
+      discussion: Discussion
     node:
       title: "Node: %{name}"
       history_title: "Node History: %{name}"

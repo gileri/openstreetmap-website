@@ -11,7 +11,7 @@
 
   <%= render :partial => "tag_details", :object => @changeset.tags.except('comment') %>
 
-  <h4 class="comments-header"><%= t('browse.changeset.comment', :count => @changeset.comments.length) %></h4>
+  <h4 class="comments-header"><%= t('browse.changeset.discussion') %></h4>
   
   <div class="buttons clearfix subscribe-buttons">
     <form action="#" class="hide_unless_logged_in">

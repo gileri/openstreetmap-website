@@ -7,18 +7,19 @@ xml.changeset(changeset_attributes) do |asterx|
   changeset.tags.each do |k,v|
     xml.tag :k => k, :v => v
   end
+  if @include_discussion
+    xml.discussion do 
+      changeset.comments.each do |comment|
+        xml.comment do
+          xml.date comment.created_at
 
-  xml.comments do 
-    changeset.comments.each do |comment|
-      xml.comment do
-        xml.date comment.created_at
+          xml.uid comment.author.id
+          xml.user comment.author.display_name
+          xml.user_url user_url(:display_name => comment.author.display_name, :host => SERVER_URL)
 
-        xml.uid comment.author.id
-        xml.user comment.author.display_name
-        xml.user_url user_url(:display_name => comment.author.display_name, :host => SERVER_URL)
-
-        xml.text comment.body.to_text
-        xml.html comment.body.to_html
+          xml.text comment.body.to_text
+          xml.html comment.body.to_html
+        end
       end
     end
   end

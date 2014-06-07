@@ -41,6 +41,7 @@ class ChangesetController < ApplicationController
   # return anything about the nodes, ways and relations in the changeset.
   def read
     @changeset = Changeset.find(params[:id])
+    @include_discussion = params['include_discussion'].present? # TODO tests
 
     respond_to do |format|
       format.xml { render :action => :show }

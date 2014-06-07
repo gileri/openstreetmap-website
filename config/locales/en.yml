@@ -1236,7 +1236,7 @@ en:
         subject_own: "[OpenStreetMap] %{commenter} has commented on one of your changesets"
         subject_other: "[OpenStreetMap] %{commenter} has commented on a changeset you are interested in"
         your_changeset: "%{commenter} has left a comment on one of your changesets."
-        commented_changeset: "%{commenter} has left a comment on a map changeset you have commented on."
+        commented_changeset: "%{commenter} has left a comment on a map changeset you are watching."
       details: "More details about the changeset can be found at %{url}."
   message:
     inbox:

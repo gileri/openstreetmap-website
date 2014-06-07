@@ -152,6 +152,9 @@ class Notifier < ActionMailer::Base
       @comment = comment.body
       @owner = recipient == comment.changeset.user
       @commenter = comment.author.display_name
+      @changeset_comment = comment.changeset.tags['comment'].presence
+      @time = comment.created_at
+      @changeset_author = comment.changeset.user.display_name
 
       if @owner
         subject = I18n.t("notifier.changeset_comment_notification.commented.subject_own", :commenter => @commenter)

@@ -15,7 +15,7 @@
   
   <div class="buttons clearfix subscribe-buttons">
     <form action="#" class="hide_unless_logged_in">
-      <% if @changeset.subscribers.exists?(@user) # TODO I don't know if it's nice to do this kind of check here, maybe add another CSS class? %>
+      <% if @changeset.subscribers.exists?(@user) # TODO I don't know if it's nice to do this kind of check here, maybe add another CSS class?, is there a convention of keeping views user agnostic? %>
         <input type="submit" name="unsubscribe" value="<%= t('javascripts.changesets.show.unsubscribe') %>" data-method="POST" data-url="<%= changeset_unsubscribe_url(@changeset, 'json') %>" />
       <% else %>
         <input type="submit" name="subscribe" value="<%= t('javascripts.changesets.show.subscribe') %>" data-method="POST" data-url="<%= changeset_subscribe_url(@changeset, 'json') %>" />

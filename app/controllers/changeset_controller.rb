@@ -398,6 +398,17 @@ class ChangesetController < ApplicationController
     end
   end
 
+  ##
+  # Get a feed of recent changeset comments
+  def comments_feed
+    # Find the comments we want to return
+    @comments = ChangesetComment.where(:visible => :true).order("created_at DESC").limit(result_limit).preload(:changeset)
+
+    # Render the result
+    respond_to do |format|
+      format.rss
+    end
+  end
 private
   #------------------------------------------------------------
   # utility functions below.
@@ -526,6 +537,20 @@ private
   # this should be applied to all changeset list displays
   def conditions_nonempty(changesets)
     return changesets.where("num_changes > 0")
+  end
+
+  ##
+  # Get the maximum number of results to return
+  def result_limit
+    if params[:limit]
+      if params[:limit].to_i > 0 and params[:limit].to_i <= 10000
+        params[:limit].to_i
+      else
+        raise OSM::APIBadUserInput.new("Changeset limit must be between 1 and 10000")
+      end
+    else
+      100
+    end
   end
 
 end

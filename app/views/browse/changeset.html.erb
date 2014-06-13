@@ -25,18 +25,31 @@
 
   <div class="clearfix"></div>
 
-  <% if @changeset.comments.length > 0 %>
+  <% if @comments.length > 0 %>
     <div class='changeset-comments'>
-      <ul>
-        <% @changeset.comments.each do |comment| %>
-          <li id="c<%= comment.id %>">
-            <small class='deemphasize'><%= t("browse.changeset.commented_by",
-             :when => friendly_date(comment.created_at), :exact_time => l(comment.created_at), 
-             :user => link_to(h(comment.author.display_name), {:controller => "user", :action => "view", :display_name => comment.author.display_name})).html_safe %></small>
-            <%= comment.body.to_html %>
-          </li>
-        <% end %>
-      </ul>
+      <form action="#">
+        <ul>
+          <% @comments.each do |comment| %>
+            <% if comment.visible %>
+              <li id="c<%= comment.id %>">
+                <small class='deemphasize'><%= t("browse.changeset.commented_by",
+                 :when => friendly_date(comment.created_at), :exact_time => l(comment.created_at), 
+                 :user => link_to(h(comment.author.display_name), {:controller => "user", :action => "view", :display_name => comment.author.display_name})).html_safe %></small>
+                <input type="submit" name="hide" value="<%= t('javascripts.changesets.show.hide_comment') %>" class="hide_unless_moderator deemphasize" data-comment-id="<%= comment.id %>" data-method="POST" data-url="<%= changeset_comment_hide_url(comment.id, 'json') %>">
+                <%= comment.body.to_html %>
+              </li>
+            <% else %>
+              <li id="c<%= comment.id %>" class="hide_unless_moderator">
+                <small class='deemphasize'><%= t("browse.changeset.hidden_commented_by",
+                 :when => friendly_date(comment.created_at), :exact_time => l(comment.created_at), 
+                 :user => link_to(h(comment.author.display_name), {:controller => "user", :action => "view", :display_name => comment.author.display_name})).html_safe %></small>
+                <input type="submit" name="unhide" value="<%= t('javascripts.changesets.show.unhide_comment') %>" class="hide_unless_moderator deemphasize" data-comment-id="<%= comment.id %>" data-method="POST" data-url="<%= changeset_comment_unhide_url(comment.id, 'json') %>">
+                <%= comment.body.to_html %>
+              </li>
+            <% end %>
+          <% end %>
+        </ul>
+      </form>
     </div>
   <% end %>
 

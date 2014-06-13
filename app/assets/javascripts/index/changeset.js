@@ -1,17 +1,21 @@
 OSM.Changeset = function (map) {
   var page = {},
-    content = $('#sidebar_content');
+    content = $('#sidebar_content'),
+    currentChangesetId;
 
   page.pushstate = page.popstate = function(path, id) {
     OSM.loadSidebarContent(path, function() {
+      currentChangesetId = id;
       initialize();
-      addChangeset(id);
+      addChangeset(currentChangesetId);
     });
   };
 
   page.load = function(path, id) {
+    if(id)
+      currentChangesetId = id;
     initialize();
-    addChangeset(id, true);
+    addChangeset(currentChangesetId, true);
   };
 
   function addChangeset(id, center) {
@@ -39,7 +43,7 @@ OSM.Changeset = function (map) {
     });
   }
 
-  function changeSubscription(form, method, url) {
+  function updateChangesetWithNoData(form, method, url) {
     $(form).find("input[type=submit]").prop("disabled", true);
 
     $.ajax({
@@ -59,10 +63,10 @@ OSM.Changeset = function (map) {
       updateChangeset(e.target.form, data.method, data.url);
     });
 
-    content.find("input[name=subscribe],input[name=unsubscribe]").on("click", function (e) {
+    content.find("input[name!=comment]").on("click", function (e) {
       e.preventDefault();
       var data = $(e.target).data();
-      changeSubscription(e.target.form, data.method, data.url);
+      updateChangesetWithNoData(e.target.form, data.method, data.url);
     });
 
     content.find("textarea").on("input", function (e) {

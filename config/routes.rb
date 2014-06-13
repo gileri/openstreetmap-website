@@ -15,7 +15,9 @@ OpenStreetMap::Application.routes.draw do
   match 'api/0.6/changeset/:id/close' => 'changeset#close', :via => :put, :id => /\d+/
   match 'api/0.6/changesets' => 'changeset#query', :via => :get
   post 'api/0.6/changeset/:id/comment' => 'changeset#comment', :as => :changeset_comment, :id => /\d+/
-  get 'api/0.6/changesets/comments_feed' => 'changeset#comments_feed', :as => :changeset_comments_feed, :id => /\d+/, :defaults => { :format => "rss" }
+  get 'api/0.6/changeset/comments_feed' => 'changeset#comments_feed', :as => :changeset_comments_feed, :id => /\d+/, :defaults => { :format => "rss" }
+  post 'api/0.6/changeset/comment/:id/hide' => 'changeset#hide_comment', :as => :changeset_comment_hide, :id => /\d+/
+  post 'api/0.6/changeset/comment/:id/unhide' => 'changeset#unhide_comment', :as => :changeset_comment_unhide, :id => /\d+/
 
   match 'api/0.6/node/create' => 'node#create', :via => :put
   match 'api/0.6/node/:id/ways' => 'way#ways_for_node', :via => :get, :id => /\d+/

@@ -7,10 +7,11 @@ class ChangesetController < ApplicationController
   skip_before_filter :verify_authenticity_token, :except => [:list]
   before_filter :authorize_web, :only => [:list, :feed]
   before_filter :set_locale, :only => [:list, :feed]
-  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
-  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
+  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe, :hide_comment, :unhide_comment]
+  before_filter :require_moderator, :only => [:hide_comment, :unhide_comment]
+  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe, :hide_comment, :unhide_comment]
   before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
-  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :comment, :subscribe, :unsubscribe]
+  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :comment, :subscribe, :unsubscribe, :hide_comment, :unhide_comment]
   before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :comment, :subscribe, :unsubscribe]
   before_filter(:only => [:list, :feed]) { |c| c.check_database_readable(true) }
   after_filter :compress_output
@@ -378,6 +379,8 @@ class ChangesetController < ApplicationController
     end
   end
 
+  ## 
+  # Removes a subscriber from the changeset
   def unsubscribe 
     # Check the arguments are sane
     raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
@@ -390,6 +393,50 @@ class ChangesetController < ApplicationController
     raise OSM::APINotFoundError unless @changeset
 
     @changeset.subscribers.delete(@user) if @changeset.subscribers.exists?(@user)
+
+    # Return a copy of the updated changeset
+    respond_to do |format|
+      format.xml { render :action => :show }
+      format.json { render :json => @changeset } # TODO
+    end
+  end
+
+  ## 
+  # Sets visible flag on comment to false
+  def hide_comment
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+
+    # Extract the arguments
+    id = params[:id].to_i
+
+    # Find the changeset and check it is valid
+    @comment = ChangesetComment.find(id)
+    raise OSM::APINotFoundError unless @comment
+
+    @comment.update(:visible => false)
+
+    # Return a copy of the updated changeset
+    respond_to do |format|
+      format.xml { render :action => :show }
+      format.json { render :json => @changeset } # TODO
+    end
+  end
+
+  ## 
+  # Sets visible flag on comment to true
+  def unhide_comment
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+
+    # Extract the arguments
+    id = params[:id].to_i
+
+    # Find the changeset and check it is valid
+    @comment = ChangesetComment.find(id)
+    raise OSM::APINotFoundError unless @comment
+
+    @comment.update :visible => true
 
     # Return a copy of the updated changeset
     respond_to do |format|

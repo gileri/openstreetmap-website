@@ -122,6 +122,7 @@ en:
       relation: "Relations (%{count})"
       relation_paginated: "Relations (%{x}-%{y} of %{count})"
       comment: "Comments (%{count})"
+      hidden_commented_by: "Hidden comment from %{user} <abbr title='%{exact_time}'>%{when} ago</abbr>"
       commented_by: "Comment from %{user} <abbr title='%{exact_time}'>%{when} ago</abbr>"
       changesetxml: "Changeset XML"
       osmchangexml: "osmChange XML"
@@ -2126,6 +2127,8 @@ en:
         comment: "Comment"
         subscribe: "Subscribe"
         unsubscribe: "Unsubscribe"
+        hide_comment: "Hide"
+        unhide_comment: "Unhide"
     notes:
       new:
         intro: "Spotted a mistake or something missing? Let other mappers know so we can fix it. Move the marker to the correct position and type a note to explain the problem. (Please don't enter personal information or information from copyrighted maps or directory listings.)"

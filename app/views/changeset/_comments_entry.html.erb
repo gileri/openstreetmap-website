@@ -1,8 +1,2 @@
 <h2><%= t "changeset.rss.comment" %></h2>
 <%= render :partial => 'comment', :object => comments_entry %>
-<h2><%= t "changeset.rss.full" %></h2>
-<div>
-  <% comments_entry.changeset.comments.each do |comment| %>
-    <%= render :partial => 'comment', :object => comment %>
-  <% end %>
-</div>

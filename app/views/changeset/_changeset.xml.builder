@@ -1,4 +1,4 @@
-changeset_attributes = { :id => changeset.id, :user => changeset.user.display_name, :created_at => changeset.created_at.xmlschema, :closed_at => changeset.closed_at, :open => changeset.is_open? }
+changeset_attributes = { :id => changeset.id, :created_at => changeset.created_at.xmlschema, :closed_at => changeset.closed_at, :open => changeset.is_open? }
 changeset_attributes[:uid] = changeset.user.id if changeset.user.data_public?
 changeset_attributes[:user] = changeset.user.display_name if changeset.user.data_public?
 changeset.bbox.to_unscaled.add_bounds_to(changeset_attributes, '_') if changeset.bbox.complete?

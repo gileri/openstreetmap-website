@@ -1,0 +1,1 @@
+json.ingest! render(:partial => "changeset", :object => @changeset)

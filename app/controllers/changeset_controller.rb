@@ -46,7 +46,7 @@ class ChangesetController < ApplicationController
 
     respond_to do |format|
       format.xml { render :action => :show }
-      format.json { render :json => @changeset } # TODO
+      format.json { render :action => :show }
     end
   end
 
@@ -352,7 +352,7 @@ class ChangesetController < ApplicationController
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
-      format.json { render :json => @changeset } # TODO
+      format.json { render :action => :show }
     end
   end
 
@@ -375,7 +375,7 @@ class ChangesetController < ApplicationController
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
-      format.json { render :json => @changeset } # TODO
+      format.json { render :action => :show }
     end
   end
 
@@ -397,7 +397,7 @@ class ChangesetController < ApplicationController
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
-      format.json { render :json => @changeset } # TODO
+      format.json { render :action => :show }
     end
   end
 
@@ -419,7 +419,7 @@ class ChangesetController < ApplicationController
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
-      format.json { render :json => @changeset } # TODO
+      format.json { render :action => :show }
     end
   end
 
@@ -441,13 +441,13 @@ class ChangesetController < ApplicationController
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
-      format.json { render :json => @changeset } # TODO
+      format.json { render :action => :show }
     end
   end
 
   ##
-  # Get a feed of recent changeset comments
-  def comments_feed
+  # Get a feed of recent changeset comments from all changesets
+  def all_comments_feed
     # Find the comments we want to return
     @comments = ChangesetComment.where(:visible => :true).order("created_at DESC").limit(result_limit).preload(:changeset)
 
@@ -456,6 +456,29 @@ class ChangesetController < ApplicationController
       format.rss
     end
   end
+
+  ##
+  # Get a feed of recent changeset comments
+  def comments_feed
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+
+    # Extract the arguments
+    id = params[:id].to_i
+
+    # Find the changeset and check it is valid
+    @changeset = Changeset.find(id)
+    raise OSM::APINotFoundError unless @changeset
+
+    # Find the comments we want to return
+    @comments = @changeset.comments.limit(result_limit)
+
+    # Render the result
+    respond_to do |format|
+      format.rss
+    end
+  end
+
 private
   #------------------------------------------------------------
   # utility functions below.

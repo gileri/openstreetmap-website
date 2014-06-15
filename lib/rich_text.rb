@@ -1,4 +1,8 @@
 module RichText
+  HASH_DIRECTIVES = {
+    'c' => { :action => 'changeset', :nice_text => 'Changeset' },
+    'n' => { :action => 'note', :nice_text => 'Note' }
+  }
   def self.new(format, text)
     case format
     when "html"; HTML.new(text || "")
@@ -19,6 +23,9 @@ module RichText
 
   class Base < String
     include ActionView::Helpers::TagHelper
+    include ActionView::Helpers
+    include ActionDispatch::Routing
+    include Rails.application.routes.url_helpers
 
     def spam_score
       link_count = 0
@@ -53,11 +60,27 @@ module RichText
         Rinku.auto_link(text, :urls, tag_options(:rel => "nofollow"))
       end
     end
+
+    def expand_links(text)
+      result = text.gsub(/#(#{Regexp.union( HASH_DIRECTIVES.keys )})(\d+)/) do |match|
+      from = match[1]
+      num = match[2]
+      options = HASH_DIRECTIVES[from]
+        link_to("#{options[:nice_text]} ##{num}",url_for(:controller => 'browse', :action => options[:action],
+          :id => num.to_i, :only_path => false, :host => SERVER_URL))
+      end
+
+      if text.html_safe?
+        result.html_safe
+      else
+        result
+      end
+    end
   end
 
   class HTML < Base
     def to_html
-      linkify(sanitize(simple_format(self)))
+      linkify(expand_links(sanitize(simple_format(self))))
     end
 
     def to_text
@@ -108,7 +131,7 @@ module RichText
 
   class Text < Base
     def to_html
-      linkify(simple_format(ERB::Util.html_escape(self)))
+      linkify(expand_links(simple_format(ERB::Util.html_escape(self))))
     end
 
     def to_text

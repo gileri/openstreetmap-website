@@ -154,6 +154,13 @@ class RichTextTest < ActiveSupport::TestCase
     assert_html r do
       assert_select "p", "foo &lt; bar &amp; baz &gt; qux"
     end
+
+    r = RichText.new("text", "foo #c1 bar")
+    url = "http://www.openstreetmap.org/changeset/1"
+    assert_html r do
+      assert_select "a", 1
+      assert_select "a[href=#{url}]", 1
+    end
   end
 
 private

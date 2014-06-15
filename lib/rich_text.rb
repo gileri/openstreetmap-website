@@ -1,7 +1,10 @@
 module RichText
   HASH_DIRECTIVES = {
     'c' => { :action => 'changeset', :nice_text => 'Changeset' },
-    'n' => { :action => 'note', :nice_text => 'Note' }
+    'o' => { :action => 'note', :nice_text => 'Note' },
+    'w' => { :action => 'way', :nice_text => 'Way' },
+    'r' => { :action => 'relation', :nice_text => 'Relation'},
+    'n' => { :action => 'node', :nice_text => 'Node'}
   }
   def self.new(format, text)
     case format
@@ -66,7 +69,7 @@ module RichText
       from = match[1]
       num = match[2]
       options = HASH_DIRECTIVES[from]
-        link_to("#{options[:nice_text]} ##{num}",url_for(:controller => 'browse', :action => options[:action],
+      link_to("#{options[:nice_text]} ##{num}",url_for(:controller => 'browse', :action => options[:action],
           :id => num.to_i, :only_path => false, :host => SERVER_URL))
       end
 

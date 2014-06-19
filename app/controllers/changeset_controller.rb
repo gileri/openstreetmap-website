@@ -413,6 +413,7 @@ class ChangesetController < ApplicationController
     # Find the changeset and check it is valid
     @comment = ChangesetComment.find(id)
     raise OSM::APINotFoundError unless @comment
+    @changeset = @comment.changeset
 
     @comment.update(:visible => false)
 
@@ -435,6 +436,7 @@ class ChangesetController < ApplicationController
     # Find the changeset and check it is valid
     @comment = ChangesetComment.find(id)
     raise OSM::APINotFoundError unless @comment
+    @changeset = @comment.changeset
 
     @comment.update :visible => true
 

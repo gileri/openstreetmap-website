@@ -3,6 +3,7 @@ require 'changeset_controller'
 
 class ChangesetControllerTest < ActionController::TestCase
   api_fixtures
+  fixtures :changeset_comments
 
   ##
   # test all routes which lead to this controller
@@ -42,6 +43,22 @@ class ChangesetControllerTest < ActionController::TestCase
     assert_routing(
         { :path => "/api/0.6/changeset/1/unsubscribe", :method => :post },
         { :controller => "changeset", :action => "unsubscribe", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/comment/1/hide", :method => :post },
+        { :controller => "changeset", :action => "hide_comment", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/comment/1/unhide", :method => :post },
+        { :controller => "changeset", :action => "unhide_comment", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/comments_feed", :method => :get },
+        { :controller => "changeset", :action => "all_comments_feed", :format =>"rss" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/1/comments_feed", :method => :get },
+        { :controller => "changeset", :action => "comments_feed", :id => "1", :format =>"rss" }
     )
     assert_routing(
       { :path => "/api/0.6/changesets", :method => :get },
@@ -1968,6 +1985,77 @@ EOF
     assert_response :conflict
   end
 
+  ##
+  # test hide comment fail
+  def test_hide_comment_fail
+    comment = changeset_comments(:t1)
+    assert('comment.visible') do
+      post :hide_comment, { :id => comment.id, :format => "json" }
+      assert_response :unauthorized
+    end
+    
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert('comment.visible') do
+      post :hide_comment, { :id => comment.id, :format => "json" }
+      assert_response :forbidden
+    end
+
+    basic_authorization(users(:moderator_user).email, 'test')
+
+    post :hide_comment, { :id => 999111, :format => "json" }
+    assert_response :not_found
+  end
+
+  ##
+  # test hide comment succes
+  def test_hide_comment_success
+    comment = changeset_comments(:t1)
+
+    basic_authorization(users(:moderator_user).email, 'test')
+
+    assert('!comment.visible') do
+      post :hide_comment, { :id => comment.id, :format => "json" }
+    end
+    assert_response :success
+  end
+
+  ##
+  # test unhide comment fail
+  def test_unhide_comment_fail
+    comment = changeset_comments(:t1)
+    assert('comment.visible') do
+      post :unhide_comment, { :id => comment.id, :format => "json" }
+      assert_response :unauthorized
+    end
+    
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert('comment.visible') do
+      post :unhide_comment, { :id => comment.id, :format => "json" }
+      assert_response :forbidden
+    end
+
+    basic_authorization(users(:moderator_user).email, 'test')
+
+    post :unhide_comment, { :id => 999111, :format => "json" }
+    assert_response :not_found
+  end
+
+  ##
+  # test unhide comment succes
+  def test_unhide_comment_success
+    comment = changeset_comments(:t1)
+
+    basic_authorization(users(:moderator_user).email, 'test')
+
+    assert('!comment.visible') do
+      post :unhide_comment, { :id => comment.id, :format => "json" }
+    end
+    assert_response :success
+  end
 
   #------------------------------------------------------------
   # utility functions

@@ -54,7 +54,7 @@
   <% end %>
 
   <div class="notice hide_if_logged_in">
-    <%= t('browse.changeset.join_discussion') %>
+    <%= link_to t('browse.changeset.join_discussion'), login_url %>
   </div>
 
   <% unless @changeset.is_open? %>

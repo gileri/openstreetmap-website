@@ -12,6 +12,5 @@ class CreateChangesetComments < ActiveRecord::Migration
     add_foreign_key :changeset_comments, [:changeset_id], :changesets, [:id]
     add_foreign_key :changeset_comments, [:author_id], :users, [:id]
     add_index :changeset_comments, :created_at
-    add_index :changeset_comments, :body
   end
 end

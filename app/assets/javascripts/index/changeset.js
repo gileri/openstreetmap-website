@@ -5,9 +5,7 @@ OSM.Changeset = function (map) {
 
   page.pushstate = page.popstate = function(path, id) {
     OSM.loadSidebarContent(path, function() {
-      currentChangesetId = id;
-      initialize();
-      addChangeset(currentChangesetId);
+      page.load(path, id);
     });
   };
 
@@ -36,6 +34,7 @@ OSM.Changeset = function (map) {
     } else {
       data = {};
     }
+
     $.ajax({
       url: url,
       type: method,

@@ -53,11 +53,11 @@ class ChangesetControllerTest < ActionController::TestCase
         { :controller => "changeset", :action => "unhide_comment", :id => "1" }
     )
     assert_routing(
-        { :path => "/api/0.6/changeset/comments_feed", :method => :get },
-        { :controller => "changeset", :action => "all_comments_feed", :format =>"rss" }
+        { :path => "/api/0.6/changeset/comments/feed", :method => :get },
+        { :controller => "changeset", :action => "comments_feed", :format =>"rss" }
     )
     assert_routing(
-        { :path => "/api/0.6/changeset/1/comments_feed", :method => :get },
+        { :path => "/api/0.6/changeset/1/comments/feed", :method => :get },
         { :controller => "changeset", :action => "comments_feed", :id => "1", :format =>"rss" }
     )
     assert_routing(
@@ -1947,6 +1947,17 @@ EOF
       post :subscribe, { :id => changeset.id }
     end
     assert_response :conflict
+
+    # subscribing
+    changeset = changesets(:normal_user_closed_change)
+    post :subscribe, { :id => changeset.id, :format => :json }
+    assert_response :success
+
+    # trying to subsrcirbe one more time
+    assert_no_difference('changeset.subscribers.count') do
+      post :subscribe, { :id => changeset.id, :format => :json }
+    end
+    assert_response :conflict
   end
 
   ##
@@ -1967,22 +1978,29 @@ EOF
   def test_unsubscribe_fail
     changeset = changesets(:normal_user_closed_change)
     assert_no_difference('changeset.subscribers.count') do
-      post :subscribe, { :id => changeset.id }
+      post :unsubscribe, { :id => changeset.id }
     end
     assert_response :unauthorized
 
     basic_authorization(users(:public_user).email, 'test')
 
     assert_no_difference('changeset.subscribers.count', -1) do
-      post :subscribe, { :id => 999111 }
+      post :unsubscribe, { :id => 999111 }
     end
     assert_response :not_found
 
     changeset = changesets(:normal_user_first_change)
     assert_no_difference('changeset.subscribers.count', -1) do
-      post :subscribe, { :id => changeset.id }
+      post :unsubscribe, { :id => changeset.id }
     end
     assert_response :conflict
+
+    # trying to unsubscribe when not subscribed
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.subscribers.count') do
+      post :unsubscribe, { :id => changeset.id }
+    end
+    assert_response :not_found
   end
 
   ##

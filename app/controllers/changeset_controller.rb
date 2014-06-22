@@ -369,9 +369,9 @@ class ChangesetController < ApplicationController
     @changeset = Changeset.find(id)
     raise OSM::APINotFoundError unless @changeset
     raise OSM::APIChangesetNotYetClosedError.new(@changeset) if @changeset.is_open?
+    raise OSM::APIChangesetAlreadySubscribedError.new(@changeset) if @changeset.subscribers.exists?(@user)
 
-    @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
-
+    @changeset.subscribers << @user
     # Return a copy of the updated changeset
     respond_to do |format|
       format.xml { render :action => :show }
@@ -391,8 +391,10 @@ class ChangesetController < ApplicationController
     # Find the changeset and check it is valid
     @changeset = Changeset.find(id)
     raise OSM::APINotFoundError unless @changeset
+    raise OSM::APIChangesetNotYetClosedError.new(@changeset) if @changeset.is_open?
+    raise OSM::APIChangesetNotSubscribedError.new(@changeset) unless @changeset.subscribers.exists?(@user)
 
-    @changeset.subscribers.delete(@user) if @changeset.subscribers.exists?(@user)
+    @changeset.subscribers.delete(@user)
 
     # Return a copy of the updated changeset
     respond_to do |format|

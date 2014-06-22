@@ -1,5 +1,5 @@
 class ChangesetComment < ActiveRecord::Base
-  belongs_to :changeset, :touch => true
+  belongs_to :changeset
   belongs_to :author, :class_name => "User"
 
   validates_presence_of :id, :on => :update # is it necessary?

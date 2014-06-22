@@ -29,27 +29,18 @@ OSM.Changeset = function (map) {
     });
   }
 
-  function updateChangeset(form, method, url) {
+  function updateChangeset(form, method, url, include_data) {
     $(form).find("input[type=submit]").prop("disabled", true);
-
+    if(include_data) {
+      data = {text: $(form.text).val()};
+    } else {
+      data = {};
+    }
     $.ajax({
       url: url,
       type: method,
       oauth: true,
-      data: {text: $(form.text).val()},
-      success: function () {
-        OSM.loadSidebarContent(window.location.pathname, page.load);
-      }
-    });
-  }
-
-  function updateChangesetWithNoData(form, method, url) {
-    $(form).find("input[type=submit]").prop("disabled", true);
-
-    $.ajax({
-      url: url,
-      type: method,
-      oauth: true,
+      data: data,
       success: function () {
         OSM.loadSidebarContent(window.location.pathname, page.load);
       }
@@ -60,13 +51,13 @@ OSM.Changeset = function (map) {
     content.find("input[name=comment]").on("click", function (e) {
       e.preventDefault();
       var data = $(e.target).data();
-      updateChangeset(e.target.form, data.method, data.url);
+      updateChangeset(e.target.form, data.method, data.url, true);
     });
 
-    content.find("input[name!=comment]").on("click", function (e) {
+    content.find("input.subscription-button").on("click", function (e) {
       e.preventDefault();
       var data = $(e.target).data();
-      updateChangesetWithNoData(e.target.form, data.method, data.url);
+      updateChangeset(e.target.form, data.method, data.url);
     });
 
     content.find("textarea").on("input", function (e) {

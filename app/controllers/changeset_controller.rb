@@ -448,32 +448,20 @@ class ChangesetController < ApplicationController
   end
 
   ##
-  # Get a feed of recent changeset comments from all changesets
-  def all_comments_feed
-    # Find the comments we want to return
-    @comments = ChangesetComment.where(:visible => :true).order("created_at DESC").limit(result_limit).preload(:changeset)
-
-    # Render the result
-    respond_to do |format|
-      format.rss
-    end
-  end
-
-  ##
   # Get a feed of recent changeset comments
   def comments_feed
-    # Check the arguments are sane
-    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+    if params[:id]
+      # Extract the arguments
+      id = params[:id].to_i
 
-    # Extract the arguments
-    id = params[:id].to_i
+      # Find the changeset
+      @changeset = Changeset.find(id)
 
-    # Find the changeset and check it is valid
-    @changeset = Changeset.find(id)
-    raise OSM::APINotFoundError unless @changeset
-
-    # Find the comments we want to return
-    @comments = @changeset.comments.limit(result_limit)
+      # Find the comments we want to return
+      @comments = @changeset.comments.limit(comments_limit)
+    else
+      @comments = ChangesetComment.where(:visible => :true).order("created_at DESC").limit(comments_limit).preload(:changeset)
+    end
 
     # Render the result
     respond_to do |format|
@@ -612,13 +600,13 @@ private
   end
 
   ##
-  # Get the maximum number of results to return
-  def result_limit
+  # Get the maximum number of comments to return
+  def comments_limit
     if params[:limit]
       if params[:limit].to_i > 0 and params[:limit].to_i <= 10000
         params[:limit].to_i
       else
-        raise OSM::APIBadUserInput.new("Changeset limit must be between 1 and 10000")
+        raise OSM::APIBadUserInput.new("Comments limit must be between 1 and 10000")
       end
     else
       100

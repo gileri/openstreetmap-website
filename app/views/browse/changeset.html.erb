@@ -15,10 +15,10 @@
   
   <div class="buttons clearfix subscribe-buttons">
     <form action="#" class="hide_unless_logged_in">
-      <% if @changeset.subscribers.exists?(@user) # TODO I don't know if it's nice to do this kind of check here, maybe add another CSS class?, is there a convention of keeping views user agnostic? %>
-        <input class="subscription-button" type="submit" name="unsubscribe" value="<%= t('javascripts.changesets.show.unsubscribe') %>" data-method="POST" data-url="<%= changeset_unsubscribe_url(@changeset, 'json') %>" />
+      <% if @changeset.subscribers.exists?(@user) %>
+        <input class="action-button" type="submit" name="unsubscribe" value="<%= t('javascripts.changesets.show.unsubscribe') %>" data-method="POST" data-url="<%= changeset_unsubscribe_url(@changeset, 'json') %>" />
       <% else %>
-        <input class="subscription-button" type="submit" name="subscribe" value="<%= t('javascripts.changesets.show.subscribe') %>" data-method="POST" data-url="<%= changeset_subscribe_url(@changeset, 'json') %>" />
+        <input class="action-button" type="submit" name="subscribe" value="<%= t('javascripts.changesets.show.subscribe') %>" data-method="POST" data-url="<%= changeset_subscribe_url(@changeset, 'json') %>" />
       <% end %>
     </form>
   </div>
@@ -35,7 +35,7 @@
                 <small class='deemphasize'><%= t("browse.changeset.commented_by",
                  :when => friendly_date(comment.created_at), :exact_time => l(comment.created_at), 
                  :user => link_to(h(comment.author.display_name), {:controller => "user", :action => "view", :display_name => comment.author.display_name})).html_safe %></small>
-                <input type="submit" name="hide" value="<%= t('javascripts.changesets.show.hide_comment') %>" class="hide_unless_moderator deemphasize" data-comment-id="<%= comment.id %>" data-method="POST" data-url="<%= changeset_comment_hide_url(comment.id, 'json') %>">
+                <input class="action-button" type="submit" name="hide" value="<%= t('javascripts.changesets.show.hide_comment') %>" class="hide_unless_moderator deemphasize" data-comment-id="<%= comment.id %>" data-method="POST" data-url="<%= changeset_comment_hide_url(comment.id, 'json') %>">
                 <%= comment.body.to_html %>
               </li>
             <% else %>
@@ -43,7 +43,7 @@
                 <small class='deemphasize'><%= t("browse.changeset.hidden_commented_by",
                  :when => friendly_date(comment.created_at), :exact_time => l(comment.created_at), 
                  :user => link_to(h(comment.author.display_name), {:controller => "user", :action => "view", :display_name => comment.author.display_name})).html_safe %></small>
-                <input type="submit" name="unhide" value="<%= t('javascripts.changesets.show.unhide_comment') %>" class="hide_unless_moderator deemphasize" data-comment-id="<%= comment.id %>" data-method="POST" data-url="<%= changeset_comment_unhide_url(comment.id, 'json') %>">
+                <input class="action-button" type="submit" name="unhide" value="<%= t('javascripts.changesets.show.unhide_comment') %>" class="hide_unless_moderator deemphasize" data-comment-id="<%= comment.id %>" data-method="POST" data-url="<%= changeset_comment_unhide_url(comment.id, 'json') %>">
                 <%= comment.body.to_html %>
               </li>
             <% end %>

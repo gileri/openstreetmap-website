@@ -177,11 +177,15 @@ class ChangesetControllerTest < ActionController::TestCase
   # document structure.
   def test_read
     changeset_id = changesets(:normal_user_first_change).id
-    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
+    get :read, :id => changeset_id, :format => :xml
     assert_response :success, "cannot get first changeset"
 
     assert_select "osm[version=#{API_VERSION}][generator=\"OpenStreetMap server\"]", 1
     assert_select "osm>changeset[id=#{changeset_id}]", 1
+    assert_select "osm>changeset>discussion", 0
+
+    get :read, :id => changeset_id, :format => :xml, :include_discussion => true
+    assert_select "osm>changeset>discussion", 1
   end
 
   ##
@@ -2006,7 +2010,7 @@ EOF
   ##
   # test hide comment fail
   def test_hide_comment_fail
-    comment = changeset_comments(:t1)
+    comment = changeset_comments(:normal_comment_1)
     assert('comment.visible') do
       post :hide_comment, { :id => comment.id, :format => "json" }
       assert_response :unauthorized
@@ -2029,7 +2033,7 @@ EOF
   ##
   # test hide comment succes
   def test_hide_comment_success
-    comment = changeset_comments(:t1)
+    comment = changeset_comments(:normal_comment_1)
 
     basic_authorization(users(:moderator_user).email, 'test')
 
@@ -2042,7 +2046,7 @@ EOF
   ##
   # test unhide comment fail
   def test_unhide_comment_fail
-    comment = changeset_comments(:t1)
+    comment = changeset_comments(:normal_comment_1)
     assert('comment.visible') do
       post :unhide_comment, { :id => comment.id, :format => "json" }
       assert_response :unauthorized
@@ -2065,7 +2069,7 @@ EOF
   ##
   # test unhide comment succes
   def test_unhide_comment_success
-    comment = changeset_comments(:t1)
+    comment = changeset_comments(:normal_comment_1)
 
     basic_authorization(users(:moderator_user).email, 'test')
 
@@ -2073,6 +2077,28 @@ EOF
       post :unhide_comment, { :id => comment.id, :format => "json" }
     end
     assert_response :success
+  end
+
+  ##
+  # test comments feed
+  def test_comments_feed
+    get :comments_feed, {:format => "rss"}
+    assert_response :success
+    assert_equal "application/rss+xml", @response.content_type
+    assert_select "rss", :count => 1 do
+      assert_select "channel", :count => 1 do
+        assert_select "item", :count => 3
+      end
+    end
+
+    get :comments_feed, { :id => changesets(:normal_user_closed_change), :format => "rss"}
+    assert_response :success
+    assert_equal "application/rss+xml", @response.content_type
+    assert_select "rss", :count => 1 do
+      assert_select "channel", :count => 1 do
+        assert_select "item", :count => 3
+      end
+    end
   end
 
   #------------------------------------------------------------

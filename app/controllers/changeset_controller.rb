@@ -42,7 +42,7 @@ class ChangesetController < ApplicationController
   # return anything about the nodes, ways and relations in the changeset.
   def read
     @changeset = Changeset.find(params[:id])
-    @include_discussion = params['include_discussion'].present? # TODO tests
+    @include_discussion = params['include_discussion'].present?
 
     respond_to do |format|
       format.xml { render :action => :show }
@@ -318,7 +318,6 @@ class ChangesetController < ApplicationController
   ##
   # Add a comment to a changeset
   def comment
-    # TODO tests
     # Check the arguments are sane
     raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
     raise OSM::APIBadUserInput.new("No text was given") if params[:text].blank?

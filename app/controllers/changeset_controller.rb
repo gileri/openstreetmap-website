@@ -12,7 +12,7 @@ class ChangesetController < ApplicationController
   before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe, :hide_comment, :unhide_comment]
   before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close, :comment, :subscribe, :unsubscribe]
   before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :comment, :subscribe, :unsubscribe, :hide_comment, :unhide_comment]
-  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :comment, :subscribe, :unsubscribe]
+  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :comment, :subscribe, :unsubscribe, :comments_feed]
   before_filter(:only => [:list, :feed]) { |c| c.check_database_readable(true) }
   after_filter :compress_output
   around_filter :api_call_handle_error, :except => [:list, :feed]
@@ -44,10 +44,7 @@ class ChangesetController < ApplicationController
     @changeset = Changeset.find(params[:id])
     @include_discussion = params['include_discussion'].present?
 
-    respond_to do |format|
-      format.xml { render :action => :show }
-      format.json { render :action => :show }
-    end
+    render :action => :show
   end
 
   ##
@@ -349,10 +346,7 @@ class ChangesetController < ApplicationController
     @changeset.subscribers << @user unless @changeset.subscribers.exists?(@user)
 
     # Return a copy of the updated changeset
-    respond_to do |format|
-      format.xml { render :action => :show }
-      format.json { render :action => :show }
-    end
+    render :action => :show
   end
 
   ## 
@@ -372,10 +366,7 @@ class ChangesetController < ApplicationController
 
     @changeset.subscribers << @user
     # Return a copy of the updated changeset
-    respond_to do |format|
-      format.xml { render :action => :show }
-      format.json { render :action => :show }
-    end
+    render :action => :show
   end
 
   ## 
@@ -396,10 +387,7 @@ class ChangesetController < ApplicationController
     @changeset.subscribers.delete(@user)
 
     # Return a copy of the updated changeset
-    respond_to do |format|
-      format.xml { render :action => :show }
-      format.json { render :action => :show }
-    end
+    render :action => :show
   end
 
   ## 
@@ -419,10 +407,7 @@ class ChangesetController < ApplicationController
     @comment.update(:visible => false)
 
     # Return a copy of the updated changeset
-    respond_to do |format|
-      format.xml { render :action => :show }
-      format.json { render :action => :show }
-    end
+    render :action => :show
   end
 
   ## 
@@ -442,10 +427,7 @@ class ChangesetController < ApplicationController
     @comment.update :visible => true
 
     # Return a copy of the updated changeset
-    respond_to do |format|
-      format.xml { render :action => :show }
-      format.json { render :action => :show }
-    end
+    render :action => :show
   end
 
   ##

@@ -26,7 +26,7 @@ class ChangesetControllerTest < ActionController::TestCase
     )
     assert_routing(
       { :path => "/api/0.6/changeset/1", :method => :get },
-      { :controller => "changeset", :action => "read", :id => "1", :format => :xml }
+      { :controller => "changeset", :action => "read", :id => "1" }
     )
     assert_routing(
       { :path => "/api/0.6/changeset/1", :method => :put },
@@ -1925,7 +1925,7 @@ EOF
     changeset = changesets(:normal_user_closed_change)
 
     assert_difference('changeset.subscribers.count') do
-      post :subscribe, { :id => changeset.id, :format => :json }
+      post :subscribe, { :id => changeset.id, :format => :xml }
     end
     assert_response :success
   end
@@ -1935,7 +1935,7 @@ EOF
   def test_subscribe_fail
     changeset = changesets(:normal_user_closed_change)
     assert_no_difference('changeset.subscribers.count') do
-      post :subscribe, { :id => changeset.id, :format => :json }
+      post :subscribe, { :id => changeset.id, :format => :xml }
     end
     assert_response :unauthorized
 
@@ -1954,12 +1954,12 @@ EOF
 
     # subscribing
     changeset = changesets(:normal_user_closed_change)
-    post :subscribe, { :id => changeset.id, :format => :json }
+    post :subscribe, { :id => changeset.id, :format => :xml }
     assert_response :success
 
     # trying to subsrcirbe one more time
     assert_no_difference('changeset.subscribers.count') do
-      post :subscribe, { :id => changeset.id, :format => :json }
+      post :subscribe, { :id => changeset.id, :format => :xml }
     end
     assert_response :conflict
   end
@@ -1969,10 +1969,10 @@ EOF
   def test_unsubscribe_success
     basic_authorization(users(:public_user).email, 'test')
     changeset = changesets(:normal_user_closed_change)
-    post :subscribe, { :id => changeset.id, :format => :json }
+    post :subscribe, { :id => changeset.id, :format => :xml }
     # unsubscribe
     assert_difference('changeset.subscribers.count', -1) do
-      post :unsubscribe, { :id => changeset.id, :format => :json }
+      post :unsubscribe, { :id => changeset.id, :format => :xml }
     end
     assert_response :success
   end
@@ -2012,7 +2012,7 @@ EOF
   def test_hide_comment_fail
     comment = changeset_comments(:normal_comment_1)
     assert('comment.visible') do
-      post :hide_comment, { :id => comment.id, :format => "json" }
+      post :hide_comment, { :id => comment.id, :format => "xml" }
       assert_response :unauthorized
     end
     
@@ -2020,13 +2020,13 @@ EOF
     basic_authorization(users(:public_user).email, 'test')
 
     assert('comment.visible') do
-      post :hide_comment, { :id => comment.id, :format => "json" }
+      post :hide_comment, { :id => comment.id, :format => "xml" }
       assert_response :forbidden
     end
 
     basic_authorization(users(:moderator_user).email, 'test')
 
-    post :hide_comment, { :id => 999111, :format => "json" }
+    post :hide_comment, { :id => 999111, :format => "xml" }
     assert_response :not_found
   end
 
@@ -2038,7 +2038,7 @@ EOF
     basic_authorization(users(:moderator_user).email, 'test')
 
     assert('!comment.visible') do
-      post :hide_comment, { :id => comment.id, :format => "json" }
+      post :hide_comment, { :id => comment.id, :format => "xml" }
     end
     assert_response :success
   end
@@ -2048,7 +2048,7 @@ EOF
   def test_unhide_comment_fail
     comment = changeset_comments(:normal_comment_1)
     assert('comment.visible') do
-      post :unhide_comment, { :id => comment.id, :format => "json" }
+      post :unhide_comment, { :id => comment.id, :format => "xml" }
       assert_response :unauthorized
     end
     
@@ -2056,13 +2056,13 @@ EOF
     basic_authorization(users(:public_user).email, 'test')
 
     assert('comment.visible') do
-      post :unhide_comment, { :id => comment.id, :format => "json" }
+      post :unhide_comment, { :id => comment.id, :format => "xml" }
       assert_response :forbidden
     end
 
     basic_authorization(users(:moderator_user).email, 'test')
 
-    post :unhide_comment, { :id => 999111, :format => "json" }
+    post :unhide_comment, { :id => 999111, :format => "xml" }
     assert_response :not_found
   end
 
@@ -2074,7 +2074,7 @@ EOF
     basic_authorization(users(:moderator_user).email, 'test')
 
     assert('!comment.visible') do
-      post :unhide_comment, { :id => comment.id, :format => "json" }
+      post :unhide_comment, { :id => comment.id, :format => "xml" }
     end
     assert_response :success
   end

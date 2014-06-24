@@ -54,7 +54,7 @@
   <% end %>
 
   <div class="notice hide_if_logged_in">
-    <%= link_to t('browse.changeset.join_discussion'), login_url %>
+    <%= link_to(t("browse.changeset.join_discussion"), :controller => 'user', :action => 'login', :referer => request.fullpath) %>
   </div>
 
   <% unless @changeset.is_open? %>

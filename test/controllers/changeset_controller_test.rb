@@ -26,7 +26,7 @@ class ChangesetControllerTest < ActionController::TestCase
     )
     assert_routing(
       { :path => "/api/0.6/changeset/1", :method => :get },
-      { :controller => "changeset", :action => "read", :id => "1" }
+      { :controller => "changeset", :action => "read", :id => "1", :format => 'xml' }
     )
     assert_routing(
       { :path => "/api/0.6/changeset/1", :method => :put },
@@ -1414,7 +1414,7 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
+    get :read, :id => changeset_id, :format => :xml
 
     assert_response :success, "Couldn't read back changeset."
     assert_select "osm>changeset[min_lon=1.0]", 1
@@ -1430,7 +1430,7 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
+    get :read, :id => changeset_id, :format => :xml
     assert_response :success, "Couldn't read back changeset for the second time."
     assert_select "osm>changeset[min_lon=1.0]", 1
     assert_select "osm>changeset[max_lon=2.0]", 1
@@ -1446,7 +1446,7 @@ EOF
     end
 
     # get the bounding box back from the changeset
-    get :read, :id => changeset_id, :format => :xml # TODO why it doesn't use defaults?
+    get :read, :id => changeset_id, :format => 'xml'
     assert_response :success, "Couldn't read back changeset for the third time."
     # note that the 3.1 here is because of the bbox overexpansion
     assert_select "osm>changeset[min_lon=1.0]", 1

@@ -42,7 +42,7 @@ class ChangesetController < ApplicationController
   # return anything about the nodes, ways and relations in the changeset.
   def read
     @changeset = Changeset.find(params[:id])
-    @include_discussion = params['include_discussion'].present?
+    @comments = params['include_discussion'].presence ? @changeset.comments.includes(:author) : false
 
     render :action => :show
   end
@@ -441,9 +441,9 @@ class ChangesetController < ApplicationController
       @changeset = Changeset.find(id)
 
       # Find the comments we want to return
-      @comments = @changeset.comments.limit(comments_limit)
+      @comments = @changeset.comments.includes(:author, :changeset).limit(comments_limit)
     else
-      @comments = ChangesetComment.where(:visible => :true).order("created_at DESC").limit(comments_limit).preload(:changeset)
+      @comments = ChangesetComment.includes(:author, :changeset).where(:visible => :true).order("created_at DESC").limit(comments_limit).preload(:changeset)
     end
 
     # Render the result

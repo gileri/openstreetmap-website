@@ -7,9 +7,9 @@ xml.changeset(changeset_attributes) do |asterx|
   changeset.tags.each do |k,v|
     xml.tag :k => k, :v => v
   end
-  if @include_discussion
+  if @comments
     xml.discussion do 
-      changeset.comments.each do |comment|
+      @comments.each do |comment|
         xml.comment do
           xml.date comment.created_at
 

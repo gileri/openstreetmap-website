@@ -26,7 +26,6 @@ module RichText
 
   class Base < String
     include ActionView::Helpers::TagHelper
-    include ActionView::Helpers
     include ActionDispatch::Routing
     include Rails.application.routes.url_helpers
 

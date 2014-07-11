@@ -79,6 +79,22 @@ module RichText
         result
       end
     end
+
+    def expand_links_markdown(text)
+      result = text.gsub(/#(#{Regexp.union( HASH_DIRECTIVES.keys )})(\d+)/) do |match|
+        from = match[1]
+        num = match[2]
+        options = HASH_DIRECTIVES[from]
+        "[#{options[:nice_text]} ##{num}](#{url_for(:controller => 'browse', :action => options[:action],
+            :id => num.to_i, :only_path => false, :host => SERVER_URL)})"
+      end
+
+      if text.html_safe?
+        result.html_safe
+      else
+        result
+      end
+    end
   end
 
   class HTML < Base
@@ -87,7 +103,7 @@ module RichText
     end
 
     def to_text
-      self.to_s
+      expand_links(self).to_s
     end
 
   private
@@ -99,11 +115,11 @@ module RichText
 
   class Markdown < Base
     def to_html
-      html_parser.render(self).html_safe
+      html_parser.render(expand_links_markdown(self)).html_safe
     end
 
     def to_text
-      self.to_s
+      expand_links_markdown(self).to_s
     end
 
   private
@@ -138,7 +154,7 @@ module RichText
     end
 
     def to_text
-      self.to_s
+      expand_links(self).to_s
     end
   end
 end

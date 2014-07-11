@@ -969,7 +969,9 @@ header .search_form {
 .search_results_entry {
   ul li {
     border-bottom: $keyline;
+    cursor: pointer;
     &:first-child { border-top: $keyline; }
+    &.selected { background: #FFFFE6; }
   }
 
   .search_details {
@@ -1316,6 +1318,34 @@ header .search_form {
 
   .trace_private {
     color: red;
+  }
+}
+
+/* Rules for the new trace form */
+
+#new_trace {
+  input[type=text] {
+    width: 50%;
+    width: -moz-calc(100% - 150px);
+    width: -webkit-calc(100% - 150px);
+    width: calc(100% - 150px);
+    max-width: 500px;
+  }
+}
+
+/* Rules for the edit trace form */
+
+.edit_trace {
+  .form-row p {
+    margin-bottom: 0px;
+  }
+
+  input[type=text] {
+    width: 50%;
+    width: -moz-calc(100% - 150px);
+    width: -webkit-calc(100% - 150px);
+    width: calc(100% - 150px);
+    max-width: 500px;
   }
 }
 
@@ -1901,7 +1931,6 @@ a.button {
   cursor: pointer;
   border: 0;
   display: inline-block;
-  line-height: 20px;
   padding: $lineheight/4 $lineheight/2;
   min-height: 20px + $lineheight/2;
   min-width: 120px;
@@ -1930,6 +1959,16 @@ a.button {
   &:last-child {
     margin-bottom: 0;
   }
+}
+
+input[type="button"],
+input[type="submit"],
+input[type="reset"] {
+  line-height: normal;
+}
+
+a.button {
+  line-height: 20px;
 }
 
 .buttons {

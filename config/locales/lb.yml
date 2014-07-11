@@ -62,6 +62,7 @@ lb:
       relation: Relatiounen (%{count})
       relation_paginated: Relatiounen (%{x}-%{y} vu(n) %{count})
       way: Weeër (%{count})
+      way_paginated: Weeër (%{x}–%{y} vu(n) %{count})
     closed: Zou
     containing_relation: 
       entry: Relatioun %{relation_name}
@@ -79,6 +80,8 @@ lb:
         way: Wee
     note: 
       description: Beschreiwung
+      hidden_by: Verstoppt vum %{user} <abbr title='%{exact_time}'>viru(n) %{when}</abbr>
+      hidden_title: Verstoppt Notiz N° %{note_name}
       new_note: Nei Notiz
       title: "Notiz: %{id}"
     part_of: Deel vu(n)
@@ -99,6 +102,7 @@ lb:
       load_data: Donnéeë lueden
       loading: Lueden...
     tag_details: 
+      tags: Markéierungen
       wiki_link: 
         key: D'Wiki-Beschreiwungssäit fir den %{key}-Tag
         tag: D'Wiki-Beschreiwungssäit fir den %{key}=%{value}-Tag
@@ -136,6 +140,7 @@ lb:
       older_comments: Méi al Bemierkungen
       when: Wéini
     diary_comment: 
+      comment_from: Bemierkung vum %{link_user} de(n) %{comment_created_at}
       confirm: Confirméieren
       hide_link: Dës Bemierkung verstoppen
     diary_entry: 
@@ -160,6 +165,7 @@ lb:
       view: Weisen
     view: 
       leave_a_comment: Eng Bemierkung maachen
+      login: Aloggen
       save_button: Späicheren
   export: 
     start: 
@@ -169,6 +175,7 @@ lb:
       licence: Lizenz
       max: max
       options: Optiounen
+      osm_xml_data: OpenStreetMap-XML-Daten
       scale: Maassstab
       too_large: 
         other: 
@@ -216,6 +223,8 @@ lb:
       prefix: 
         aeroway: 
           aerodrome: Fluchhafen
+          gate: Paart
+          runway: Start- a Landepist
         amenity: 
           airport: Fluchhafen
           artwork: Konschtwierk
@@ -224,12 +233,15 @@ lb:
           bank: Bank
           bar: Bar
           bench: Bänk
+          biergarten: Béiergaard
+          brothel: Bordell
           bureau_de_change: Wiesselbüro
           bus_station: Busarrêt
           cafe: Café
           casino: Casino
           cinema: Kino
           clinic: Klinik
+          club: Club
           crematorium: Crematoire
           dentist: Zänndokter
           doctors: Dokteren
@@ -256,13 +268,16 @@ lb:
           preschool: Spillschoul
           prison: Prisong
           pub: Bistro
+          reception_area: Rezeptiounsberäich
           restaurant: Restaurant
           sauna: Sauna
           school: Schoul
           shop: Geschäft
+          shower: Douche
           social_facility: Sozial Ariichtung
           studio: Studio
           supermarket: Supermarché
+          swimming_pool: Schwämm
           taxi: Taxi
           telephone: Telefonscabine
           theatre: Theater
@@ -280,7 +295,10 @@ lb:
         emergency: 
           phone: Noutruff-Telefon
         highway: 
+          construction: Autobunn (am Bau)
           footway: Fousswee
+          milestone: Kilometersteen
+          minor: Niewestrooss
           motorway: Autobunn
           path: Pad
           pedestrian: Fousswee
@@ -292,6 +310,7 @@ lb:
           secondary_link: Niewestrooss
           steps: Trap
           street_lamp: Stroosseluucht
+          tertiary: Kleng Strooss
         historic: 
           archaeological_site: Archeologesche Site
           battlefield: Schluechtfeld
@@ -310,6 +329,7 @@ lb:
           farm: Bauerenhaff
           forest: Bësch
           garages: Garagen
+          grass: Wiss
           military: Militairegebitt
           park: Park
           piste: Pist
@@ -328,7 +348,9 @@ lb:
           playground: Spillplaz
           sauna: Sauna
           stadium: Stadion
-          swimming_pool: Schwëmm
+          swimming_pool: Schwämm
+        military: 
+          bunker: Bunker
         natural: 
           beach: Plage
           channel: Kanal
@@ -366,6 +388,7 @@ lb:
           house: Haus
           houses: Haiser
           island: Insel
+          islet: Insel
           municipality: Gemeng
           neighbourhood: Noperschaft
           postcode: Postcode
@@ -476,6 +499,7 @@ lb:
     export_data: Donnéeën exportéieren
     foundation: Fondatioun
     help: Hëllef
+    history: Versiounen
     home: Op déi Plaz zréckgoen déi als Doheem definéiert ass
     learn_more: Méi wëssen
     log_in: Aloggen
@@ -648,6 +672,7 @@ lb:
       points: "Punkten:"
       save_button: Ännerunge späicheren
       start_coord: "Ufankskoordinaten:"
+      tags: "Markéierungen:"
       tags_help: Mat Komma getrennt
       uploaded_at: "Eropgelueden:"
       visibility: "Visibilitéit:"
@@ -667,6 +692,7 @@ lb:
     trace_form: 
       description: "Beschreiwung:"
       help: Hëllef
+      tags: "Markéierungen:"
       tags_help: Mat Komma getrennt
       upload_button: Eroplueden
       upload_gpx: "GPX-Fichier eroplueden:"
@@ -685,6 +711,7 @@ lb:
       pending: AM SUSPENS
       points: "Punkten:"
       start_coordinates: "Ufankskoordinaten:"
+      tags: "Markéierungen:"
       uploaded: "Eropgelueden:"
       visibility: "Visibilitéit:"
   user: 

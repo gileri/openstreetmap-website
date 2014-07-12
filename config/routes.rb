@@ -9,6 +9,8 @@ OpenStreetMap::Application.routes.draw do
   match 'api/0.6/changeset/:id/download' => 'changeset#download', :via => :get, :as => :changeset_download, :id => /\d+/
   match 'api/0.6/changeset/:id/expand_bbox' => 'changeset#expand_bbox', :via => :post, :id => /\d+/
   match 'api/0.6/changeset/:id' => 'changeset#read', :via => :get, :as => :changeset_read, :via => :get, :id => /\d+/
+  match 'api/0.6/changeset/:id/like' => 'changeset#like', :via => :post, :as => :changeset_like, :id => /\d+/
+  match 'api/0.6/changeset/:id/unlike' => 'changeset#unlike', :via => :post, :as => :changeset_unlike, :id => /\d+/
   match 'api/0.6/changeset/:id' => 'changeset#update', :via => :put, :id => /\d+/
   match 'api/0.6/changeset/:id/close' => 'changeset#close', :via => :put, :id => /\d+/
   match 'api/0.6/changesets' => 'changeset#query', :via => :get

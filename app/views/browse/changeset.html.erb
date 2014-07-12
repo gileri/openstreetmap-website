@@ -6,6 +6,18 @@
 </h2>
 
 <div class="browse-section">
+  <div class="buttons clearfix like-buttons">
+    <% if @changeset.user != @user %>
+      <form action="#" class="hide_unless_logged_in">
+        <% if @changeset.likers.exists?(@user) %>
+          <input class="action-button" type="submit" name="unlike" value="<%= t('javascripts.changesets.show.unlike') %>" data-method="POST" data-url="<%= changeset_unlike_url(@changeset) %>" />
+        <% else %>
+          <input class="action-button" type="submit" name="like" value="<%= t('javascripts.changesets.show.like') %>" data-method="POST" data-url="<%= changeset_like_url(@changeset) %>" />
+        <% end %>
+      </form>
+    <% end %>
+    Likes: <%= @changeset.likers.count %>
+  </div>
   <h4><%= linkify(h(@changeset.tags['comment'].to_s.presence || t('browse.no_comment'))) %></h4>
   <div class="details"><%= changeset_details(@changeset) %></div>
 

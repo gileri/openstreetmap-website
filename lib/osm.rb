@@ -89,6 +89,23 @@ module OSM
     end
   end
 
+  # Raised when the changeset provided is not yet closed
+  class APIChangesetNotYetClosedError < APIError
+    def initialize(changeset)
+      @changeset = changeset
+    end
+
+    attr_reader :changeset
+
+    def status
+      :conflict
+    end
+
+    def to_s
+      "The changeset #{@changeset.id} is not yet closed."
+    end
+  end
+
   # Raised when the changeset provided is already closed
   class APIChangesetAlreadyClosedError < APIError
     def initialize(changeset)
@@ -103,6 +120,57 @@ module OSM
 
     def to_s
       "The changeset #{@changeset.id} was closed at #{@changeset.closed_at}"
+    end
+  end
+
+  # Raised when a user already liked the changeset
+  class APIChangesetAlreadyLikedError < APIError
+    def initialize(changeset)
+      @changeset = changeset
+    end
+
+    attr_reader :changeset
+
+    def status
+      :conflict
+    end
+
+    def to_s
+      "You already liked changeset #{@changeset.id}."
+    end
+  end
+
+  # Raised when a user didn't like the changeset
+  class APIChangesetNotLikedError < APIError
+    def initialize(changeset)
+      @changeset = changeset
+    end
+
+    attr_reader :changeset
+
+    def status
+      :not_found
+    end
+
+    def to_s
+      "You don't like changeset #{@changeset.id}."
+    end
+  end
+
+  # Raised when a user tries to like his own changeset
+  class APIChangesetOwnChangesetLikeError < APIError
+    def initialize(changeset)
+      @changeset = changeset
+    end
+
+    attr_reader :changeset
+
+    def status
+      :precondition_failed
+    end
+
+    def to_s
+      "You're trying to like your own #{@changeset.id}."
     end
   end
 

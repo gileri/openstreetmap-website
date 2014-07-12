@@ -12,6 +12,8 @@ class Changeset < ActiveRecord::Base
   has_many :old_ways
   has_many :old_relations
 
+  has_and_belongs_to_many :likers, :class_name => 'User', :join_table => 'changesets_likers', :association_foreign_key => 'liker_id'
+
   validates_presence_of :id, :on => :update
   validates_presence_of :user_id, :created_at, :closed_at, :num_changes
   validates_uniqueness_of :id

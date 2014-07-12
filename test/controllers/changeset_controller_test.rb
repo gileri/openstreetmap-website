@@ -36,6 +36,14 @@ class ChangesetControllerTest < ActionController::TestCase
       { :controller => "changeset", :action => "close", :id => "1" }
     )
     assert_routing(
+        { :path => "/api/0.6/changeset/1/like", :method => :post },
+        { :controller => "changeset", :action => "like", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/1/unlike", :method => :post },
+        { :controller => "changeset", :action => "unlike", :id => "1" }
+    )
+    assert_routing(
       { :path => "/api/0.6/changesets", :method => :get },
       { :controller => "changeset", :action => "query" }
     )
@@ -1838,6 +1846,102 @@ EOF
     # be hidden.
     assert_select "osmChange node[id=17]", 1
     assert_select "osmChange node[id=17][version=1]", 0
+  end
+
+  ##
+  # test like success
+  def test_like_success
+    basic_authorization(users(:public_user).email, 'test')
+    changeset = changesets(:normal_user_closed_change)
+
+    assert_difference('changeset.likers.count') do
+      post :like, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :success
+  end
+
+  ##
+  # test like fail
+  def test_like_fail
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.likers.count') do
+      post :like, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_no_difference('changeset.likers.count') do
+      post :like, { :id => 999111 }
+    end
+    assert_response :not_found
+
+    changeset = changesets(:normal_user_first_change)
+    assert_no_difference('changeset.likers.count') do
+      post :like, { :id => changeset.id }
+    end
+    assert_response :conflict
+
+    # liking
+    changeset = changesets(:normal_user_closed_change)
+    post :like, { :id => changeset.id, :format => :xml }
+    assert_response :success
+
+    # trying to like one more time
+    assert_no_difference('changeset.likers.count') do
+      post :like, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :conflict
+
+    # trying to like own changeset
+    changeset = changesets(:public_user_closed_change)
+    assert_no_difference('changeset.likers.count') do
+      post :like, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :precondition_failed
+  end
+
+  ##
+  # test unlike success
+  def test_unlike_success
+    basic_authorization(users(:public_user).email, 'test')
+    changeset = changesets(:normal_user_closed_change)
+    post :like, { :id => changeset.id, :format => :xml }
+    # unlike
+    assert_difference('changeset.likers.count', -1) do
+      post :unlike, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :success
+  end
+
+  ##
+  # test unlike fail
+  def test_unlike_fail
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.likers.count') do
+      post :unlike, { :id => changeset.id }
+    end
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_no_difference('changeset.likers.count', -1) do
+      post :unlike, { :id => 999111 }
+    end
+    assert_response :not_found
+
+    changeset = changesets(:normal_user_first_change)
+    assert_no_difference('changeset.likers.count', -1) do
+      post :unlike, { :id => changeset.id }
+    end
+    assert_response :conflict
+
+    # trying to unlike when not liked
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.likers.count') do
+      post :unlike, { :id => changeset.id }
+    end
+    assert_response :not_found
   end
 
   #------------------------------------------------------------

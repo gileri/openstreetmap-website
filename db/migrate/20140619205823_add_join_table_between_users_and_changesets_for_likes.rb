@@ -1,6 +1,6 @@
 require 'migrate'
 
-class AddJoinTableBetweenUsersAndChangesets < ActiveRecord::Migration
+class AddJoinTableBetweenUsersAndChangesetsForLikes < ActiveRecord::Migration
   def change
     create_table :changesets_likers, id: false do |t|
       t.column :liker_id, :bigint, null: false

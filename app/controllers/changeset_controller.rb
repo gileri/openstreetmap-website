@@ -7,11 +7,11 @@ class ChangesetController < ApplicationController
   skip_before_filter :verify_authenticity_token, :except => [:list]
   before_filter :authorize_web, :only => [:list, :feed]
   before_filter :set_locale, :only => [:list, :feed]
-  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close]
-  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include]
-  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed]
+  before_filter :authorize, :only => [:create, :update, :delete, :upload, :include, :close, :like, :unlike]
+  before_filter :require_allow_write_api, :only => [:create, :update, :delete, :upload, :include, :close, :like, :unlike]
+  before_filter :require_public_data, :only => [:create, :update, :delete, :upload, :include, :close, :like, :unlike]
+  before_filter :check_api_writable, :only => [:create, :update, :delete, :upload, :include, :like, :unlike]
+  before_filter :check_api_readable, :except => [:create, :update, :delete, :upload, :download, :query, :list, :feed, :like, :unlike]
   before_filter(:only => [:list, :feed]) { |c| c.check_database_readable(true) }
   after_filter :compress_output
   around_filter :api_call_handle_error, :except => [:list, :feed]
@@ -303,6 +303,46 @@ class ChangesetController < ApplicationController
   # list edits as an atom feed
   def feed
     list
+  end
+
+  ##
+  # Adds a liker to the changeset
+  def like
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+
+    # Extract the arguments
+    id = params[:id].to_i
+
+    # Find the changeset and check it is valid
+    @changeset = Changeset.find(id)
+    raise OSM::APIChangesetNotYetClosedError.new(@changeset) if @changeset.is_open?
+    raise OSM::APIChangesetAlreadyLikedError.new(@changeset) if @changeset.likers.exists?(@user)
+    raise OSM::APIChangesetOwnChangesetLikeError.new(@changeset) if @changeset.user == @user
+
+    @changeset.likers << @user
+    # Return a copy of the updated changeset
+    render :text => @changeset.to_xml.to_s, :content_type => "text/xml"
+  end
+
+  ##
+  # Removes a liker from the changeset
+  def unlike
+    # Check the arguments are sane
+    raise OSM::APIBadUserInput.new("No id was given") unless params[:id]
+
+    # Extract the arguments
+    id = params[:id].to_i
+
+    # Find the changeset and check it is valid
+    @changeset = Changeset.find(id)
+    raise OSM::APIChangesetNotYetClosedError.new(@changeset) if @changeset.is_open?
+    raise OSM::APIChangesetNotLikedError.new(@changeset) unless @changeset.likers.exists?(@user)
+
+    @changeset.likers.delete(@user)
+
+    # Return a copy of the updated changeset
+    render :text => @changeset.to_xml.to_s, :content_type => "text/xml"
   end
 
 private

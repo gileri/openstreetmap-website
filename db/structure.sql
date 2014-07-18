@@ -126,7 +126,7 @@ CREATE TYPE user_status_enum AS ENUM (
 
 CREATE FUNCTION maptile_for_point(bigint, bigint, integer) RETURNS integer
     LANGUAGE c STRICT
-    AS '/srv/www/master.osm.compton.nu/db/functions/libpgosm.so', 'maptile_for_point';
+    AS '/home/ukasiu/repos/openstreetmap-website/db/functions/libpgosm', 'maptile_for_point';
 
 
 --
@@ -135,7 +135,7 @@ CREATE FUNCTION maptile_for_point(bigint, bigint, integer) RETURNS integer
 
 CREATE FUNCTION tile_for_point(integer, integer) RETURNS bigint
     LANGUAGE c STRICT
-    AS '/srv/www/master.osm.compton.nu/db/functions/libpgosm.so', 'tile_for_point';
+    AS '/home/ukasiu/repos/openstreetmap-website/db/functions/libpgosm', 'tile_for_point';
 
 
 --
@@ -143,8 +143,8 @@ CREATE FUNCTION tile_for_point(integer, integer) RETURNS bigint
 --
 
 CREATE FUNCTION xid_to_int4(xid) RETURNS integer
-    LANGUAGE c IMMUTABLE STRICT
-    AS '/srv/www/master.osm.compton.nu/db/functions/libpgosm.so', 'xid_to_int4';
+    LANGUAGE c STRICT
+    AS '/home/ukasiu/repos/openstreetmap-website/db/functions/libpgosm', 'xid_to_int4';
 
 
 SET default_tablespace = '';
@@ -228,6 +228,16 @@ CREATE SEQUENCE changesets_id_seq
 --
 
 ALTER SEQUENCE changesets_id_seq OWNED BY changesets.id;
+
+
+--
+-- Name: changesets_thankers; Type: TABLE; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE TABLE changesets_thankers (
+    thanker_id bigint NOT NULL,
+    changeset_id bigint NOT NULL
+);
 
 
 --
@@ -698,7 +708,7 @@ CREATE TABLE nodes (
 --
 
 CREATE TABLE note_comments (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     note_id bigint NOT NULL,
     visible boolean NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -733,7 +743,7 @@ ALTER SEQUENCE note_comments_id_seq OWNED BY note_comments.id;
 --
 
 CREATE TABLE notes (
-    id integer NOT NULL,
+    id bigint NOT NULL,
     latitude integer NOT NULL,
     longitude integer NOT NULL,
     tile bigint NOT NULL,
@@ -851,8 +861,8 @@ CREATE TABLE redactions (
     id integer NOT NULL,
     title character varying(255),
     description text,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone,
     user_id bigint NOT NULL,
     description_format format_enum DEFAULT 'markdown'::format_enum NOT NULL
 );
@@ -1064,9 +1074,9 @@ CREATE TABLE users (
     status user_status_enum DEFAULT 'pending'::user_status_enum NOT NULL,
     terms_agreed timestamp without time zone,
     consider_pd boolean DEFAULT false NOT NULL,
+    openid_url character varying(255),
     preferred_editor character varying(255),
     terms_seen boolean DEFAULT false NOT NULL,
-    openid_url character varying(255),
     description_format format_enum DEFAULT 'html'::format_enum NOT NULL,
     image_fingerprint character varying(255),
     changesets_count integer DEFAULT 0 NOT NULL,
@@ -1977,6 +1987,22 @@ ALTER TABLE ONLY changeset_tags
 
 
 --
+-- Name: changesets_thankers_changeset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY changesets_thankers
+    ADD CONSTRAINT changesets_thankers_changeset_id_fkey FOREIGN KEY (changeset_id) REFERENCES changesets(id);
+
+
+--
+-- Name: changesets_thankers_thanker_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY changesets_thankers
+    ADD CONSTRAINT changesets_thankers_thanker_id_fkey FOREIGN KEY (thanker_id) REFERENCES users(id);
+
+
+--
 -- Name: changesets_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2425,6 +2451,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140115192822');
 INSERT INTO schema_migrations (version) VALUES ('20140117185510');
 
 INSERT INTO schema_migrations (version) VALUES ('20140210003018');
+
+INSERT INTO schema_migrations (version) VALUES ('20140619205823');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

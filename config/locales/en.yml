@@ -2051,6 +2051,10 @@ en:
       last_changed: "Last changed"
       ago_html: "%{when} ago"
   javascripts:
+    changesets:
+      show:
+        unthank: Unthank
+        thank: Thank
     close: Close
     share:
       title: "Share"

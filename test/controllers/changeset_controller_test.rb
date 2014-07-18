@@ -36,6 +36,14 @@ class ChangesetControllerTest < ActionController::TestCase
       { :controller => "changeset", :action => "close", :id => "1" }
     )
     assert_routing(
+        { :path => "/api/0.6/changeset/1/thank", :method => :post },
+        { :controller => "changeset", :action => "thank", :id => "1" }
+    )
+    assert_routing(
+        { :path => "/api/0.6/changeset/1/unthank", :method => :post },
+        { :controller => "changeset", :action => "unthank", :id => "1" }
+    )
+    assert_routing(
       { :path => "/api/0.6/changesets", :method => :get },
       { :controller => "changeset", :action => "query" }
     )
@@ -1838,6 +1846,102 @@ EOF
     # be hidden.
     assert_select "osmChange node[id=17]", 1
     assert_select "osmChange node[id=17][version=1]", 0
+  end
+
+  ##
+  # test thank success
+  def test_thank_success
+    basic_authorization(users(:public_user).email, 'test')
+    changeset = changesets(:normal_user_closed_change)
+
+    assert_difference('changeset.thankers.count') do
+      post :thank, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :success
+  end
+
+  ##
+  # test thank fail
+  def test_thank_fail
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.thankers.count') do
+      post :thank, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_no_difference('changeset.thankers.count') do
+      post :thank, { :id => 999111 }
+    end
+    assert_response :not_found
+
+    changeset = changesets(:normal_user_first_change)
+    assert_no_difference('changeset.thankers.count') do
+      post :thank, { :id => changeset.id }
+    end
+    assert_response :conflict
+
+    # thanking
+    changeset = changesets(:normal_user_closed_change)
+    post :thank, { :id => changeset.id, :format => :xml }
+    assert_response :success
+
+    # trying to thank one more time
+    assert_no_difference('changeset.thankers.count') do
+      post :thank, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :conflict
+
+    # trying to thank own changeset
+    changeset = changesets(:public_user_closed_change)
+    assert_no_difference('changeset.thankers.count') do
+      post :thank, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :precondition_failed
+  end
+
+  ##
+  # test unthank success
+  def test_unthank_success
+    basic_authorization(users(:public_user).email, 'test')
+    changeset = changesets(:normal_user_closed_change)
+    post :thank, { :id => changeset.id, :format => :xml }
+    # unthank
+    assert_difference('changeset.thankers.count', -1) do
+      post :unthank, { :id => changeset.id, :format => :xml }
+    end
+    assert_response :success
+  end
+
+  ##
+  # test unthank fail
+  def test_unthank_fail
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.thankers.count') do
+      post :unthank, { :id => changeset.id }
+    end
+    assert_response :unauthorized
+
+    basic_authorization(users(:public_user).email, 'test')
+
+    assert_no_difference('changeset.thankers.count', -1) do
+      post :unthank, { :id => 999111 }
+    end
+    assert_response :not_found
+
+    changeset = changesets(:normal_user_first_change)
+    assert_no_difference('changeset.thankers.count', -1) do
+      post :unthank, { :id => changeset.id }
+    end
+    assert_response :conflict
+
+    # trying to unthank when not thankd
+    changeset = changesets(:normal_user_closed_change)
+    assert_no_difference('changeset.thankers.count') do
+      post :unthank, { :id => changeset.id }
+    end
+    assert_response :not_found
   end
 
   #------------------------------------------------------------

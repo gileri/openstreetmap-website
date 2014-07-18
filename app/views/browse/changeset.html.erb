@@ -6,6 +6,18 @@
 </h2>
 
 <div class="browse-section">
+  <div class="buttons clearfix thank-buttons">
+    <% if @changeset.user != @user %>
+      <form action="#" class="hide_unless_logged_in">
+        <% if @changeset.thankers.exists?(@user) %>
+          <input class="action-button" type="submit" name="unthank" value="<%= t('javascripts.changesets.show.unthank') %>" data-method="POST" data-url="<%= changeset_unthank_url(@changeset) %>" />
+        <% else %>
+          <input class="action-button" type="submit" name="thank" value="<%= t('javascripts.changesets.show.thank') %>" data-method="POST" data-url="<%= changeset_thank_url(@changeset) %>" />
+        <% end %>
+      </form>
+    <% end %>
+    Thanks: <%= @changeset.thankers.count %>
+  </div>
   <h4><%= linkify(h(@changeset.tags['comment'].to_s.presence || t('browse.no_comment'))) %></h4>
   <div class="details"><%= changeset_details(@changeset) %></div>
 

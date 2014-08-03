@@ -1748,6 +1748,20 @@ CREATE INDEX gpx_files_visible_visibility_idx ON gpx_files USING btree (visible,
 
 
 --
+-- Name: index_changesets_thankers_on_changeset_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE INDEX index_changesets_thankers_on_changeset_id ON changesets_thankers USING btree (changeset_id);
+
+
+--
+-- Name: index_changesets_thankers_on_thanker_id_and_changeset_id; Type: INDEX; Schema: public; Owner: -; Tablespace: 
+--
+
+CREATE UNIQUE INDEX index_changesets_thankers_on_thanker_id_and_changeset_id ON changesets_thankers USING btree (thanker_id, changeset_id);
+
+
+--
 -- Name: index_client_applications_on_key; Type: INDEX; Schema: public; Owner: -; Tablespace: 
 --
 

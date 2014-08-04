@@ -1,11 +1,13 @@
 module RichText
-  HASH_DIRECTIVES = {
-    'c' => { :action => 'changeset', :nice_text => 'Changeset' },
-    'o' => { :action => 'note', :nice_text => 'Note' },
-    'w' => { :action => 'way', :nice_text => 'Way' },
-    'r' => { :action => 'relation', :nice_text => 'Relation'},
-    'n' => { :action => 'node', :nice_text => 'Node'}
-  }
+  SHORTLINK_HOST_URL = 'osm.org'
+  HOST_URL = 'openstreetmap.org'
+  HASH_DIRECTIVES = [
+    { :short_form => 'c', :action => 'changeset', :nice_text => 'Changeset', :path_partial => '/changeset/\d+' },
+    { :short_form => 'o', :action => 'note', :nice_text => 'Note', :path_partial => '/note/\d+' },
+    { :short_form => 'w', :action => 'way', :nice_text => 'Way', :path_partial => '/way/\d+' },
+    { :short_form => 'r', :action => 'relation', :nice_text => 'Relation', :path_partial => '/relation/d+' },
+    { :short_form => 'n', :action => 'node', :nice_text => 'Node', :path_partial => '/node/\d+' }
+  ]
   def self.new(format, text)
     case format
     when "html"; HTML.new(text || "")
@@ -27,6 +29,7 @@ module RichText
   class Base < String
     include ActionView::Helpers::TagHelper
     include ActionDispatch::Routing
+    # include ActionView::Helpers::UrlHelper we have problem
     include Rails.application.routes.url_helpers
 
     def spam_score
@@ -49,7 +52,7 @@ module RichText
       return [link_proportion - 0.2, 0.0].max * 200 + link_count * 40
     end
 
-  protected
+  #protected
 
     def simple_format(text)
       SimpleFormat.new.simple_format(text)
@@ -63,13 +66,31 @@ module RichText
       end
     end
 
+    def collapse_links(text)
+      regexp = /#{Regexp.union( ['http','https'] )}:\/\/#{Regexp.union( [HOST_URL,SHORTLINK_HOST_URL] )}\/(#{Regexp.union( HASH_DIRECTIVES.map {|v| v[:action]} )})\/(\d+)/
+      result = text.gsub(regexp) do |match|
+        # quite a strange behaviuor, cause match is a string?
+        matched = match.match(regexp)
+        action = matched[1]
+        number = matched[2]
+        options = HASH_DIRECTIVES.detect { |v| v[:action] == action }
+        "##{options[:short_form]}#{number}"
+      end
+
+      if text.html_safe?
+        result.html_safe
+      else
+        result
+      end
+    end
+
     def expand_links(text)
-      result = text.gsub(/#(#{Regexp.union( HASH_DIRECTIVES.keys )})(\d+)/) do |match|
-      from = match[1]
-      num = match[2]
-      options = HASH_DIRECTIVES[from]
-      link_to("#{options[:nice_text]} ##{num}",url_for(:controller => 'browse', :action => options[:action],
-          :id => num.to_i, :only_path => false, :host => SERVER_URL))
+      result = text.gsub(/#(#{Regexp.union( HASH_DIRECTIVES.map {|v| v[:short_form]} )})(\d+)/) do |match|
+        from = match[1]
+        num = match[2]
+        options = HASH_DIRECTIVES.detect { |v| v[:short_form] == from }
+        "<a href=\"#{url_for(:controller => 'browse', :action => options[:action],
+            :id => num.to_i, :only_path => false, :host => SERVER_URL)}\">#{options[:nice_text]} ##{num}</a>"
       end
 
       if text.html_safe?
@@ -80,10 +101,10 @@ module RichText
     end
 
     def expand_links_markdown(text)
-      result = text.gsub(/#(#{Regexp.union( HASH_DIRECTIVES.keys )})(\d+)/) do |match|
+      result = text.gsub(/#(#{Regexp.union( HASH_DIRECTIVES.map {|v| v[:short_form]} )})(\d+)/) do |match|
         from = match[1]
         num = match[2]
-        options = HASH_DIRECTIVES[from]
+        options = HASH_DIRECTIVES.detect { |v| v[:short_form] == from }
         "[#{options[:nice_text]} ##{num}](#{url_for(:controller => 'browse', :action => options[:action],
             :id => num.to_i, :only_path => false, :host => SERVER_URL)})"
       end
@@ -114,7 +135,7 @@ module RichText
 
   class Markdown < Base
     def to_html
-      html_parser.render(expand_links_markdown(self)).html_safe
+      html_parser.render(expand_links_markdown(collapse_links(self))).html_safe
     end
 
     def to_text

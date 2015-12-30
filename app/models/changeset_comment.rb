@@ -8,7 +8,7 @@ class ChangesetComment < ActiveRecord::Base
   validates :author, :presence => true, :associated => true
   validates :visible, :inclusion => [true, false]
 
-  scope :visible, -> { where(visible: true) }
+  scope :visible, -> { where(:visible => true) }
 
   # Return the comment text
   def body

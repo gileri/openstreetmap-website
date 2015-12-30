@@ -230,16 +230,16 @@ OpenStreetMap::Application.routes.draw do
   match "/user/:display_name/diary/:id/hidecomment/:comment" => "diary_entry#hidecomment", :via => :post, :id => /\d+/, :comment => /\d+/, :as => :hide_diary_comment
 
   # changeset comments pages
-  match '/changeset_discussions' => 'changeset_comments#list', :via => :get
-  match '/changeset_discussions/page/:page' => 'changeset_comments#list', :via => :get
-  match '/user/:display_name/changeset_discussions' => 'changeset_comments#list', :via => :get
-  match '/user/:display_name/changeset_discussions/page/:page' => 'changeset_comments#list', :via => :get
-  match '/user/:display_name/changeset_discussions/:type' => 'changeset_comments#list', :via => :get
-  match '/user/:display_name/changeset_discussions/:type/page/:page' => 'changeset_comments#list', :via => :get
-  match '/changeset_discussions/mine/page/:page' => 'changeset_comments#mine', :via => :get
-  match '/changeset_discussions/mine/:type/page/:page' => 'changeset_comments#mine', :via => :get
-  match '/changeset_discussions/mine/:type' => 'changeset_comments#mine', :via => :get
-  match '/changeset_discussions/mine' => 'changeset_comments#mine', :via => :get
+  match "/changeset_discussions" => "changeset_comments#list", :via => :get
+  match "/changeset_discussions/page/:page" => "changeset_comments#list", :via => :get
+  match "/user/:display_name/changeset_discussions" => "changeset_comments#list", :via => :get
+  match "/user/:display_name/changeset_discussions/page/:page" => "changeset_comments#list", :via => :get
+  match "/user/:display_name/changeset_discussions/:type" => "changeset_comments#list", :via => :get
+  match "/user/:display_name/changeset_discussions/:type/page/:page" => "changeset_comments#list", :via => :get
+  match "/changeset_discussions/mine/page/:page" => "changeset_comments#mine", :via => :get
+  match "/changeset_discussions/mine/:type/page/:page" => "changeset_comments#mine", :via => :get
+  match "/changeset_discussions/mine/:type" => "changeset_comments#mine", :via => :get
+  match "/changeset_discussions/mine" => "changeset_comments#mine", :via => :get
 
   # user pages
   match "/user/:display_name" => "user#view", :via => :get, :as => "user"

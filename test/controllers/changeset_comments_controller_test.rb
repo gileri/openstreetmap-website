@@ -1,4 +1,4 @@
-require 'test_helper'
+require "test_helper"
 
 class ChangesetCommentsControllerTest < ActionController::TestCase
   fixtures :users, :changeset_comments, :changesets_subscribers
@@ -23,12 +23,12 @@ class ChangesetCommentsControllerTest < ActionController::TestCase
       { :controller => "changeset_comments", :action => "list", :display_name => "username", :page => "1" }
     )
     assert_routing(
-        { :path => "/user/username/changeset_discussions/subscribed", :method => :get },
-        { :controller => "changeset_comments", :action => "list", :display_name => "username", :type => "subscribed" }
+      { :path => "/user/username/changeset_discussions/subscribed", :method => :get },
+      { :controller => "changeset_comments", :action => "list", :display_name => "username", :type => "subscribed" }
     )
     assert_routing(
-        { :path => "/user/username/changeset_discussions/subscribed/page/1", :method => :get },
-        { :controller => "changeset_comments", :action => "list", :display_name => "username", :type => "subscribed", :page => "1" }
+      { :path => "/user/username/changeset_discussions/subscribed/page/1", :method => :get },
+      { :controller => "changeset_comments", :action => "list", :display_name => "username", :type => "subscribed", :page => "1" }
     )
     assert_routing(
       { :path => "/changeset_discussions/mine", :method => :get },
@@ -39,12 +39,12 @@ class ChangesetCommentsControllerTest < ActionController::TestCase
       { :controller => "changeset_comments", :action => "mine", :page => "1" }
     )
     assert_routing(
-        { :path => "/changeset_discussions/mine/received", :method => :get },
-        { :controller => "changeset_comments", :action => "mine", :type => "received" }
+      { :path => "/changeset_discussions/mine/received", :method => :get },
+      { :controller => "changeset_comments", :action => "mine", :type => "received" }
     )
     assert_routing(
-        { :path => "/changeset_discussions/mine/received/page/1", :method => :get },
-        { :controller => "changeset_comments", :action => "mine", :page => "1", :type => "received" }
+      { :path => "/changeset_discussions/mine/received/page/1", :method => :get },
+      { :controller => "changeset_comments", :action => "mine", :page => "1", :type => "received" }
     )
   end
 
@@ -58,19 +58,19 @@ class ChangesetCommentsControllerTest < ActionController::TestCase
   def test_list_mine
     # First try to get it when not logged in
     get :mine
-    assert_redirected_to :controller => 'user', :action => 'login', :referer => '/changeset_discussions/mine'
+    assert_redirected_to :controller => "user", :action => "login", :referer => "/changeset_discussions/mine"
 
     # Now try when logged in
-    get :mine, {}, {:user => users(:public_user).id}
-    assert_redirected_to :controller => 'changeset_comments', :action => 'list', :display_name => users(:public_user).display_name
+    get :mine, {}, { :user => users(:public_user).id }
+    assert_redirected_to :controller => "changeset_comments", :action => "list", :display_name => users(:public_user).display_name
 
     # Fetch the actual list
-    get :list, {:display_name => users(:second_public_user).display_name}, {:user => users(:second_public_user).id}
+    get :list, { :display_name => users(:second_public_user).display_name }, { :user => users(:second_public_user).id }
     check_changeset_comments_list users(:second_public_user).changeset_comments
 
     # Should be able to see own subscribed changesets comments
-    get :list, {:display_name => users(:normal_user).display_name, :type => 'subscribed'}, {:user => users(:normal_user).id}
-    check_changeset_comments_list ChangesetComment.where(changeset_id: users(:normal_user).changeset_subscriptions.map(&:id))
+    get :list, { :display_name => users(:normal_user).display_name, :type => "subscribed" }, { :user => users(:normal_user).id }
+    check_changeset_comments_list ChangesetComment.where(:changeset_id => users(:normal_user).changeset_subscriptions.map(&:id))
   end
 
   # Check the list of changeset comments for a specific user
@@ -84,19 +84,20 @@ class ChangesetCommentsControllerTest < ActionController::TestCase
     check_changeset_comments_list users(:second_public_user).changeset_comments
 
     # Should still see only user ones when authenticated as another user
-    get :list, {:display_name => users(:second_public_user).display_name}, {:user => users(:normal_user).id}
+    get :list, { :display_name => users(:second_public_user).display_name }, { :user => users(:normal_user).id }
     check_changeset_comments_list users(:second_public_user).changeset_comments
 
     # Should be able to see user's received comments
-    get :list, :display_name => users(:normal_user).display_name, :type => 'received'
-    check_changeset_comments_list ChangesetComment.where(changeset_id: users(:normal_user).changesets.map(&:id))
+    get :list, :display_name => users(:normal_user).display_name, :type => "received"
+    check_changeset_comments_list ChangesetComment.where(:changeset_id => users(:normal_user).changesets.map(&:id))
 
     # Should still see only user ones when authenticated as another user
-    get :list, {:display_name => users(:normal_user).display_name, :type => 'received'}, {:user => users(:public_user).id}
-    check_changeset_comments_list ChangesetComment.where(changeset_id: users(:normal_user).changesets.map(&:id))
+    get :list, { :display_name => users(:normal_user).display_name, :type => "received" }, { :user => users(:public_user).id }
+    check_changeset_comments_list ChangesetComment.where(:changeset_id => users(:normal_user).changesets.map(&:id))
   end
 
-private
+  private
+
   def check_changeset_comments_list(changeset_comments)
     assert_response :success
     assert_template "list"
@@ -104,7 +105,7 @@ private
     if changeset_comments.count > 0
       assert_select "table#changeset_comments_list tbody", :count => 1 do
         assert_select "tr", :count => changeset_comments.visible.count do |rows|
-          changeset_comments.visible.order("created_at DESC").zip(rows).each do |changeset_comment,row|
+          changeset_comments.visible.order("created_at DESC").zip(rows).each do |changeset_comment, row|
             assert_select row, "td", Regexp.new(Regexp.escape(changeset_comment.body))
             assert_select row, "td", Regexp.new(Regexp.escape(changeset_comment.changeset.user.display_name))
           end

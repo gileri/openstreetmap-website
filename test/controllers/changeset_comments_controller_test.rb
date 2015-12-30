@@ -7,43 +7,43 @@ class ChangesetCommentsControllerTest < ActionController::TestCase
   # test all routes which lead to this controller
   def test_routes
     assert_routing(
-      { :path => "/changeset_comments", :method => :get },
+      { :path => "/changeset_discussions", :method => :get },
       { :controller => "changeset_comments", :action => "list" }
     )
     assert_routing(
-      { :path => "/changeset_comments/page/1", :method => :get },
+      { :path => "/changeset_discussions/page/1", :method => :get },
       { :controller => "changeset_comments", :action => "list", :page => "1" }
     )
     assert_routing(
-      { :path => "/user/username/changeset_comments", :method => :get },
+      { :path => "/user/username/changeset_discussions", :method => :get },
       { :controller => "changeset_comments", :action => "list", :display_name => "username" }
     )
     assert_routing(
-      { :path => "/user/username/changeset_comments/page/1", :method => :get },
+      { :path => "/user/username/changeset_discussions/page/1", :method => :get },
       { :controller => "changeset_comments", :action => "list", :display_name => "username", :page => "1" }
     )
     assert_routing(
-        { :path => "/user/username/changeset_comments/subscribed", :method => :get },
+        { :path => "/user/username/changeset_discussions/subscribed", :method => :get },
         { :controller => "changeset_comments", :action => "list", :display_name => "username", :type => "subscribed" }
     )
     assert_routing(
-        { :path => "/user/username/changeset_comments/subscribed/page/1", :method => :get },
+        { :path => "/user/username/changeset_discussions/subscribed/page/1", :method => :get },
         { :controller => "changeset_comments", :action => "list", :display_name => "username", :type => "subscribed", :page => "1" }
     )
     assert_routing(
-      { :path => "/changeset_comments/mine", :method => :get },
+      { :path => "/changeset_discussions/mine", :method => :get },
       { :controller => "changeset_comments", :action => "mine" }
     )
     assert_routing(
-      { :path => "/changeset_comments/mine/page/1", :method => :get },
+      { :path => "/changeset_discussions/mine/page/1", :method => :get },
       { :controller => "changeset_comments", :action => "mine", :page => "1" }
     )
     assert_routing(
-        { :path => "/changeset_comments/mine/received", :method => :get },
+        { :path => "/changeset_discussions/mine/received", :method => :get },
         { :controller => "changeset_comments", :action => "mine", :type => "received" }
     )
     assert_routing(
-        { :path => "/changeset_comments/mine/received/page/1", :method => :get },
+        { :path => "/changeset_discussions/mine/received/page/1", :method => :get },
         { :controller => "changeset_comments", :action => "mine", :page => "1", :type => "received" }
     )
   end
@@ -58,7 +58,7 @@ class ChangesetCommentsControllerTest < ActionController::TestCase
   def test_list_mine
     # First try to get it when not logged in
     get :mine
-    assert_redirected_to :controller => 'user', :action => 'login', :referer => '/changeset_comments/mine'
+    assert_redirected_to :controller => 'user', :action => 'login', :referer => '/changeset_discussions/mine'
 
     # Now try when logged in
     get :mine, {}, {:user => users(:public_user).id}
@@ -111,7 +111,7 @@ private
         end
       end
     else
-      assert_select "h4", /No comments to display/
+      assert_select "h4", /No discussions to display/
     end
   end
 end
